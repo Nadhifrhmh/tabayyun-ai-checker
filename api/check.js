@@ -16,7 +16,6 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Teks tidak boleh kosong.' });
     }
 
-    // Menggunakan GROQ API KEY
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
         return res.status(500).json({ 
@@ -47,7 +46,7 @@ Catatan opsi status: BAHAYA_HOAKS_BULLYING, PERLU_TABAYYUN, atau AMAN_FAKTUAL.
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
+                model: 'llama-3.1-8b-instant',
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: `Analisis teks berikut:\n"${text}"` }
