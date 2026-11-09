@@ -1,0 +1,6 @@
+# File Environment Variables Rahasia
+.env
+.env.local
+
+# Dependency
+node_modules/

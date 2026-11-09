@@ -1,0 +1,9 @@
+{
+  "name": "tabayyun-ai-checker",
+  "version": "1.0.0",
+  "description": "Aplikasi Deteksi Hoaks & Etika Medsos Berbasis Nilai Islam (Kelompok 9)",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve ."
+  }
+}

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabayyun AI - Verifikasi Hoaks & Etika Medsos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PDF.js untuk membaca file PDF di browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans flex flex-col">
+
+    <!-- Navbar -->
+    <header class="bg-emerald-800 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white text-lg font-bold shadow">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold leading-tight">Tabayyun AI Checker</h1>
+                    <p class="text-xs text-emerald-200">Etika Medsos Mahasiswa & Deteksi Hoaks Menurut Nilai Islam</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="bg-emerald-700/80 text-emerald-100 text-xs px-3 py-1 rounded-full border border-emerald-600 font-medium hidden sm:inline-block">
+                    Kelompok 9 • IPTEK & Islam
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 py-8 flex-grow w-full">
+        
+        <!-- Hero Banner Dalil -->
+        <div class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white p-6 rounded-2xl shadow-sm mb-8 relative overflow-hidden">
+            <div class="relative z-10">
+                <span class="inline-block bg-emerald-700/70 text-emerald-200 px-3 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">
+                    QS. Al-Hujurat : 6
+                </span>
+                <p class="text-sm md:text-base italic font-serif text-emerald-100 mb-2 leading-relaxed">
+                    "Wahai orang-orang yang beriman! Jika seseorang yang fasik datang kepadamu membawa suatu berita, maka telitilah kebenarannya (tabayyun), agar kamu tidak mencelakakan suatu kaum karena kebodohan (kecerobohan)..."
+                </p>
+                <p class="text-xs text-emerald-300">
+                    Gerakan Mahasiswa: <strong>"Tabayyun Dulu, Baru Posting"</strong> — Stop Cyberbullying & Penyebaran Tuduhan Belum Terbukti.
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Kolom Input (Kiri) -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-pen-nib text-emerald-600 mr-2"></i>Teks atau Berita yang Ingin Divalidasi</span>
+                        <span id="charCount" class="text-xs font-normal text-slate-400">0 karakter</span>
+                    </label>
+                    <textarea id="textInput" rows="7" 
+                        placeholder="Ketik atau tempelkan pesan WhatsApp viral, cuitan medsos, isu asrama/kampus, atau kalimat dugaan di sini..."
+                        class="w-full p-3.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                        oninput="updateCharCount()"></textarea>
+
+                    <!-- File Upload -->
+                    <div class="mt-4 pt-4 border-t border-slate-100">
+                        <label class="block text-xs font-medium text-slate-600 mb-2">
+                            <i class="fa-solid fa-file-arrow-up text-emerald-600 mr-1.5"></i>Atau unggah berkas teks/laporan (.txt / .pdf):
+                        </label>
+                        <div class="flex items-center gap-3">
+                            <input type="file" id="fileInput" accept=".txt,.pdf" 
+                                class="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                            <span id="fileLoading" class="text-xs text-emerald-600 font-semibold hidden"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Mengekstrak teks...</span>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Periksa -->
+                    <div class="mt-5 flex gap-2">
+                        <button id="checkBtn" onclick="runTabayyunCheck()" 
+                            class="flex-1 bg-emerald-700 hover:bg-emerald-800 active:scale-[0.99] text-white py-3 px-4 rounded-xl font-semibold text-sm shadow flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>Verifikasi Tabayyun (AI)</span>
+                        </button>
+                        <button onclick="clearInput()" title="Bersihkan" 
+                            class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-3 rounded-xl text-sm transition">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Petunjuk Etika Digital -->
+                <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-xs text-blue-900 leading-relaxed">
+                    <div class="font-bold mb-1 flex items-center gap-1.5 text-blue-800">
+                        <i class="fa-solid fa-circle-question text-blue-600"></i> Prinsip 3T Sebelum Memposting:
+                    </div>
+                    <ol class="list-decimal ml-4 space-y-1 text-slate-700">
+                        <li><strong>Teliti (Tabayyun):</strong> Cari rilis resmi satgas kampus atau media terverifikasi dewan pers.</li>
+                        <li><strong>Timbang Manfaatnya:</strong> Apakah postingan ini menyelesaikan masalah atau justru merundung/mempermalukan sesama?</li>
+                        <li><strong>Tahan Diri:</strong> Jangan menjadi penyebar tuduhan sebelum ada putusan resmi (asas praduga tak bersalah).</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Kolom Hasil Analisis (Kanan) -->
+            <div class="lg:col-span-5">
+                <div id="resultCard" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-h-[380px] flex flex-col justify-center items-center text-center">
+                    
+                    <!-- Placeholder awal -->
+                    <div id="placeholderState" class="py-12 px-4 text-slate-400">
+                        <div class="w-16 h-16 mx-auto mb-3 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 text-2xl">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </div>
+                        <p class="font-semibold text-slate-600 text-sm">Siap Memeriksa Informasi</p>
+                        <p class="text-xs text-slate-400 mt-1">Ketik kalimat atau unggah berkas, lalu klik "Verifikasi Tabayyun".</p>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="loadingState" class="hidden py-12 px-4">
+                        <div class="inline-block animate-spin text-emerald-600 text-4xl mb-4">
+                            <i class="fa-solid fa-circle-notch"></i>
+                        </div>
+                        <p class="font-semibold text-slate-800 text-sm">Menganalisis Informasi...</p>
+                        <p class="text-xs text-slate-500 mt-1">Menelaah kebenaran fakta, indikasi perundungan, dan prinsip tabayyun.</p>
+                    </div>
+
+                    <!-- Isi Hasil Analisis -->
+                    <div id="outputContent" class="hidden text-left w-full space-y-4">
+                        <!-- Status Badge -->
+                        <div id="statusBadge" class="p-3.5 rounded-xl flex items-center gap-3">
+                            <i id="statusIcon" class="text-2xl"></i>
+                            <div>
+                                <h3 id="statusTitle" class="text-sm font-bold"></h3>
+                                <p id="statusSubtitle" class="text-xs opacity-90"></p>
+                            </div>
+                        </div>
+
+                        <!-- Ringkasan Temuan -->
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                <i class="fa-solid fa-magnifying-glass text-emerald-600 mr-1"></i>Analisis Kebenaran & Fakta:
+                            </h4>
+                            <p id="factAnalysis" class="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100"></p>
+                        </div>
+
+                        <!-- Analisis Perundungan -->
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                <i class="fa-solid fa-user-shield text-blue-600 mr-1"></i>Indikasi Perundungan / Ghibah:
+                            </h4>
+                            <p id="bullyingAnalysis" class="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100"></p>
+                        </div>
+
+                        <!-- Tinjauan Nilai Islam -->
+                        <div class="bg-emerald-50 border border-emerald-100 p-3.5 rounded-lg">
+                            <h4 class="text-xs font-bold text-emerald-900 uppercase tracking-wider mb-1">
+                                <i class="fa-solid fa-book-quran text-emerald-700 mr-1"></i>Tinjauan Dalil & Sikap Bijak:
+                            </h4>
+                            <p id="islamicPerspective" class="text-xs text-emerald-950 leading-relaxed"></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        Inovasi IPTEK & Nilai Islam — Kelompok 9: Nadhif Rahman Hakim, Rafi Ahmad, Mohammad Rifki.
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        function updateCharCount() {
+            const len = document.getElementById('textInput').value.length;
+            document.getElementById('charCount').innerText = `${len} karakter`;
+        }
+
+        function clearInput() {
+            document.getElementById('textInput').value = '';
+            document.getElementById('fileInput').value = '';
+            updateCharCount();
+            document.getElementById('placeholderState').classList.remove('hidden');
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('outputContent').classList.add('hidden');
+        }
+
+        // Baca file TXT / PDF di browser
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const loader = document.getElementById('fileLoading');
+            loader.classList.remove('hidden');
+
+            try {
+                if (file.name.endsWith('.txt')) {
+                    const text = await file.text();
+                    document.getElementById('textInput').value = text;
+                    updateCharCount();
+                } else if (file.name.endsWith('.pdf')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    let fullText = '';
+                    for (let i = 1; i <= Math.min(pdf.numPages, 5); i++) {
+                        const page = await pdf.getPage(i);
+                        const tokenizedText = await page.getTextContent();
+                        const pageText = tokenizedText.items.map(item => item.str).join(' ');
+                        fullText += pageText + '\n\n';
+                    }
+                    document.getElementById('textInput').value = fullText.trim();
+                    updateCharCount();
+                } else {
+                    alert('Format berkas tidak didukung. Harap pilih .txt atau .pdf');
+                }
+            } catch (err) {
+                alert('Gagal membaca isi berkas: ' + err.message);
+            } finally {
+                loader.classList.add('hidden');
+            }
+        });
+
+        // Memanggil API Vercel Serverless Function
+        async function runTabayyunCheck() {
+            const text = document.getElementById('textInput').value.trim();
+            if (!text) {
+                alert('Silakan ketik teks berita/isu atau unggah dokumen terlebih dahulu.');
+                return;
+            }
+
+            document.getElementById('placeholderState').classList.add('hidden');
+            document.getElementById('outputContent').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('checkBtn').disabled = true;
+
+            try {
+                // Memanggil endpoint internal /api/check yang aman di Vercel
+                const response = await fetch('/api/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+
+                renderResult(data);
+            } catch (err) {
+                alert('Gagal memproses verifikasi:\n' + err.message);
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('placeholderState').classList.remove('hidden');
+            } finally {
+                document.getElementById('checkBtn').disabled = false;
+            }
+        }
+
+        function renderResult(res) {
+            const badge = document.getElementById('statusBadge');
+            const icon = document.getElementById('statusIcon');
+            const title = document.getElementById('statusTitle');
+            const subtitle = document.getElementById('statusSubtitle');
+
+            badge.className = 'p-3.5 rounded-xl flex items-center gap-3 ';
+
+            if (res.status === 'BAHAYA_HOAKS_BULLYING') {
+                badge.classList.add('bg-rose-100', 'text-rose-900', 'border', 'border-rose-200');
+                icon.className = 'fa-solid fa-triangle-exclamation text-rose-600 text-2xl';
+            } else if (res.status === 'PERLU_TABAYYUN') {
+                badge.classList.add('bg-amber-100', 'text-amber-900', 'border', 'border-amber-200');
+                icon.className = 'fa-solid fa-hand text-amber-600 text-2xl';
+            } else {
+                badge.classList.add('bg-emerald-100', 'text-emerald-900', 'border', 'border-emerald-200');
+                icon.className = 'fa-solid fa-circle-check text-emerald-600 text-2xl';
+            }
+
+            title.innerText = res.judul_status || 'Hasil Verifikasi';
+            subtitle.innerText = res.deskripsi_status || '';
+
+            document.getElementById('factAnalysis').innerText = res.analisis_fakta || '-';
+            document.getElementById('bullyingAnalysis').innerText = res.analisis_perundungan || '-';
+            document.getElementById('islamicPerspective').innerText = res.tinjauan_islam || '-';
+
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('outputContent').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
