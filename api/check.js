@@ -34,7 +34,7 @@ Tugas Anda adalah menelaah teks dari pengguna:
 Berikut teks yang harus dianalisis:
 "${text}"
 
-KEMBALIKAN OUTPUT HANYA DALAM FORMAT JSON VALID BERIKUT (jangan tambahkan teks pengantar apapun):
+KEMBALIKAN OUTPUT HANYA DALAM FORMAT JSON VALID BERIKUT (tanpa pembungkus markdown apapun):
 {
     "status": "BAHAYA_HOAKS_BULLYING",
     "judul_status": "Judul status singkat",
@@ -45,46 +45,54 @@ KEMBALIKAN OUTPUT HANYA DALAM FORMAT JSON VALID BERIKUT (jangan tambahkan teks p
 }
 `;
 
-    // Daftar model aktif resmi Google
-    const models = ['gemini-2.5-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro-latest'];
-    let errorDetail = '';
-
-    for (const model of models) {
+    try {
+        // 1. Dapatkan daftar model yang aktif langsung dari akun Google Anda
+        let selectedModel = 'gemini-2.5-flash';
         try {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [
-                        {
-                            role: 'user',
-                            parts: [{ text: promptText }]
-                        }
-                    ]
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-                let rawText = data.candidates[0].content.parts[0].text.trim();
-                // Bersihkan pembungkus markdown jika ada
-                if (rawText.startsWith('```json')) {
-                    rawText = rawText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-                } else if (rawText.startsWith('```')) {
-                    rawText = rawText.replace(/^```\s*/, '').replace(/\s*```$/, '');
-                }
-
-                const parsed = JSON.parse(rawText);
-                return res.status(200).json(parsed);
-            } else {
-                errorDetail = data.error?.message || `Error pada model ${model}`;
+            const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+            if (listRes.ok) {
+                const listData = await listRes.json();
+                const available = (listData.models || [])
+                    .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
+                    .map(m => m.name.replace('models/', ''));
+                
+                // Cari model flash atau model pertama yang tersedia
+                const found = available.find(m => m.includes('flash')) || available[0];
+                if (found) selectedModel = found;
             }
         } catch (e) {
-            errorDetail = e.message;
+            // fallback default
         }
-    }
 
-    return res.status(500).json({ error: errorDetail || 'Semua model AI sedang sibuk.' });
+        // 2. Panggil model yang ditemukan
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ role: 'user', parts: [{ text: promptText }] }]
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return res.status(response.status).json({ 
+                error: data.error?.message || `Error pada model ${selectedModel}` 
+            });
+        }
+
+        let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '{}';
+        if (rawText.startsWith('```json')) {
+            rawText = rawText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (rawText.startsWith('```')) {
+            rawText = rawText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
+
+        const parsed = JSON.parse(rawText);
+        return res.status(200).json(parsed);
+
+    } catch (err) {
+        return res.status(500).json({ error: 'Terjadi kesalahan: ' + err.message });
+    }
 };
