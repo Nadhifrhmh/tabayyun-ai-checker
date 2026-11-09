@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
     const systemPrompt = `
 Anda adalah Tabayyun AI Checker untuk mahasiswa (Etika Medsos & Verifikasi Nilai Islam).
 Tugas Anda menganalisis teks dari pengguna secara ringkas, to the point, dan bijak.
-KEMBALIKAN OUTPUT HANYA DALAM FORMAT JSON VALID BERIKUT (tanpa markdown atau teks lainnya):
+KEMBALIKAN OUTPUT HANYA DALAM FORMAT JSON VALID BERIKUT (tanpa pembungkus markdown apapun):
 {
     "status": "BAHAYA_HOAKS_BULLYING",
     "judul_status": "Status Singkat",
@@ -35,10 +35,28 @@ KEMBALIKAN OUTPUT HANYA DALAM FORMAT JSON VALID BERIKUT (tanpa markdown atau tek
     "analisis_perundungan": "Apakah ada indikasi perundungan siber atau pencemaran nama baik",
     "tinjauan_islam": "Prinsip Tabayyun QS. Al-Hujurat ayat 6 dan 11 serta saran mahasiswa"
 }
-Catatan opsi status: BAHAYA_HOAKS_BULLYING, PERLU_TABAYYUN, atau AMAN_FAKTUAL.
+Opsi nilai status: 'BAHAYA_HOAKS_BULLYING', 'PERLU_TABAYYUN', atau 'AMAN_FAKTUAL'.
 `;
 
     try {
+        // 1. Dapatkan model aktif dari akun Groq secara dinamis
+        let modelName = 'llama3-8b-8192';
+        try {
+            const listRes = await fetch('https://api.groq.com/openai/v1/models', {
+                headers: { 'Authorization': `Bearer ${apiKey}` }
+            });
+            if (listRes.ok) {
+                const listData = await listRes.json();
+                const ids = (listData.data || []).map(m => m.id);
+                // Pilih model yang ada
+                const found = ids.find(id => id.includes('llama3') || id.includes('mixtral') || id.includes('gemma'));
+                if (found) modelName = found;
+            }
+        } catch (e) {
+            // fallback
+        }
+
+        // 2. Kirim permintaan
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -46,7 +64,7 @@ Catatan opsi status: BAHAYA_HOAKS_BULLYING, PERLU_TABAYYUN, atau AMAN_FAKTUAL.
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.1-8b-instant',
+                model: modelName,
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: `Analisis teks berikut:\n"${text}"` }
