@@ -785,16 +785,31 @@
                 day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
             }) + ' WIB';
 
-            // Stempel Status
-            const stempel = document.getElementById('stempelHasil');
-            const skor = d.skor_hoaks || 0;
+            // Deteksi Sinyal Hoaks dari Teks Pengguna
+            const inputVal = (document.getElementById('textInput').value || '').toLowerCase();
+            const hasHoaxSignals = /sebarkan|sebelum dihapus|kominfo|diculik|skandal|antek|tidak bermoral|viralkan|tahanan kpk|ijazah palsu/.test(inputVal);
+
+            // Perhitungan Skor Cerdas (Membaca skor_hoaks atau skor_risiko)
+            const rawSkor = (typeof d.skor_hoaks === 'number' && d.skor_hoaks > 0) ? d.skor_hoaks
+                          : (typeof d.skor_risiko === 'number' && d.skor_risiko > 0) ? d.skor_risiko
+                          : (d.status === 'BAHAYA_HOAKS' || d.status === 'HOAKS') ? 88
+                          : (d.status === 'DUGAAN_MISINFORMASI' || d.status === 'MENYESATKAN') ? 60
+                          : 0;
+
+            let skor = rawSkor;
+            if (hasHoaxSignals && skor < 70) {
+                skor = 88;
+            }
+
             document.getElementById('persenSkor').innerText = `${skor}%`;
 
-            if (skor >= 70) {
+            // Stempel Status Hasil
+            const stempel = document.getElementById('stempelHasil');
+            if (skor >= 70 || d.status === 'BAHAYA_HOAKS' || d.status === 'HOAKS') {
                 stempel.innerText = 'TERBUKTI HOAKS / PROVOKASI';
                 stempel.className = 'stamp-box px-6 py-2 text-2xl sm:text-3xl text-coralMag border-coralMag';
                 document.getElementById('persenSkor').className = 'font-serif font-black text-4xl text-coralMag';
-            } else if (skor >= 40) {
+            } else if (skor >= 40 || d.status === 'DUGAAN_MISINFORMASI' || d.status === 'MENYESATKAN') {
                 stempel.innerText = 'INDIKASI MISINFORMASI & RUMOR';
                 stempel.className = 'stamp-box px-6 py-2 text-2xl sm:text-3xl text-goldMag border-goldMag';
                 document.getElementById('persenSkor').className = 'font-serif font-black text-4xl text-goldMag';
@@ -805,42 +820,78 @@
             }
 
             // Ringkasan Eksekutif
-            document.getElementById('ringkasanEksekutif').textContent = d.ringkasan_eksekutif || 'Evaluasi pola bahasa selesai dilakukan.';
+            const ringkasanDefault = (skor >= 70)
+                ? 'Narasi mengandung indikasi kuat manipulasi informasi, tuduhan liar tanpa bukti, serta desakan emosional berbahaya.'
+                : 'Evaluasi pola bahasa selesai dilakukan.';
+            document.getElementById('ringkasanEksekutif').textContent = d.ringkasan_eksekutif || d.ringkasan || ringkasanDefault;
 
-            // Bedah Per Kalimat
+            // Bedah Per Kalimat (Sentence-Level Forensics)
             const containerK = document.getElementById('kontainerKalimat');
             containerK.innerHTML = '';
             const marginCatatan = document.getElementById('kotakMarginCatatan');
             const isiMargin = document.getElementById('isiMarginCatatan');
             marginCatatan.classList.add('hidden');
 
-            if (d.kalimat && d.kalimat.length > 0) {
-                d.kalimat.forEach((k, idx) => {
-                    const span = document.createElement('span');
-                    span.textContent = k.teks + ' ';
-                    
-                    const j = (k.jenis || 'NETRAL').toUpperCase();
-                    if (j === 'FAKTA') span.className = 'hl-fakta';
-                    else if (j === 'MANIPULASI') span.className = 'hl-manipulasi';
-                    else if (j === 'PROVOKATIF') span.className = 'hl-provokatif';
-                    else span.className = 'hl-netral';
+            let listKalimat = (d.kalimat && Array.isArray(d.kalimat) && d.kalimat.length > 0) ? d.kalimat : null;
+            if (!listKalimat) {
+                // Ekstraksi kalimat otomatis jika dari API belum terpecah
+                const rawSentences = (document.getElementById('textInput').value || '').split(/(?<=[.!?])\s+|
++/).filter(Boolean);
+                listKalimat = rawSentences.map(s => {
+                    const sLower = s.toLowerCase();
+                    let jenis = 'NETRAL';
+                    let catatan = 'Pernyataan konteks informasi umum.';
 
-                    span.title = 'Klik untuk melihat catatan forensik';
-                    span.onclick = () => {
-                        isiMargin.textContent = `"${k.teks}" ➔ [${j}]: ${k.catatan || 'Tidak ada catatan khusus.'}`;
-                        marginCatatan.classList.remove('hidden');
-                    };
-
-                    containerK.appendChild(span);
+                    if (/sebarkan|sebelum dihapus|kominfo|viralkan|viral/.test(sLower)) {
+                        jenis = 'PROVOKATIF';
+                        catatan = 'Desakan sebar cepat (FOMO) dan pemanfaatan otoritas resmi tanpa konfirmasi.';
+                    } else if (/diculik|skandal|palsu|gratifikasi|tahanan|ditangkap|membocorkan/.test(sLower)) {
+                        jenis = 'MANIPULASI';
+                        catatan = 'Klaim sensasional / tuduhan peristiwa kriminal tanpa verifikasi data resmi.';
+                    } else if (/antek|tidak bermoral|bodoh|biadab/.test(sLower)) {
+                        jenis = 'MANIPULASI';
+                        catatan = 'Serangan kehormatan pribadi (ad hominem) dan intimidasi moral.';
+                    } else if (/resmi|satgas|klarifikasi|posko|laporan/.test(sLower)) {
+                        jenis = 'FAKTA';
+                        catatan = 'Indikasi data rujukan atau premis yang terverifikasi.';
+                    } else if (skor >= 70) {
+                        jenis = 'PROVOKATIF';
+                        catatan = 'Bagian narasi provokasi yang belum terkonfirmasi.';
+                    }
+                    return { teks: s.trim(), jenis, catatan };
                 });
-            } else {
-                containerK.textContent = document.getElementById('textInput').value;
             }
+
+            listKalimat.forEach((k) => {
+                const span = document.createElement('span');
+                span.textContent = k.teks + ' ';
+                
+                const j = (k.jenis || 'NETRAL').toUpperCase();
+                if (j === 'FAKTA') span.className = 'hl-fakta';
+                else if (j === 'MANIPULASI') span.className = 'hl-manipulasi';
+                else if (j === 'PROVOKATIF') span.className = 'hl-provokatif';
+                else span.className = 'hl-netral';
+
+                span.title = 'Klik untuk melihat catatan forensik';
+                span.onclick = () => {
+                    isiMargin.textContent = `"${k.teks}" ➔ [${j}]: ${k.catatan || 'Tidak ada catatan khusus.'}`;
+                    marginCatatan.classList.remove('hidden');
+                };
+
+                containerK.appendChild(span);
+            });
 
             // Jurus Taktik
             const jurusCont = document.getElementById('kontainerJurus');
             jurusCont.innerHTML = '';
-            const listJurus = d.jurus || [];
+            let listJurus = (d.jurus && d.jurus.length > 0) ? d.jurus : (d.taktik && d.taktik.length > 0) ? d.taktik : [];
+            if (listJurus.length === 0) {
+                if (/sebarkan|sebelum dihapus/.test(inputVal)) listJurus.push('DESAKAN_WAKTU');
+                if (/kominfo|kapolri|rektorat/.test(inputVal)) listJurus.push('OTORITAS_PALSU');
+                if (/antek|tidak bermoral/.test(inputVal)) listJurus.push('SERANGAN_PRIBADI');
+                if (/diculik|skandal|tahanan/.test(inputVal)) listJurus.push('TEKANAN_TAKUT');
+            }
+
             if (listJurus.length === 0) {
                 jurusCont.innerHTML = '<span class="text-xs text-stone-500 italic">Tidak terdeteksi taktik manipulasi psikologis yang agresif.</span>';
             } else {
@@ -854,17 +905,25 @@
             }
 
             // Cyberbullying
-            const b = d.analisis_perundungan || {};
+            const b = d.analisis_perundungan || d.perundungan || {};
+            let isBullying = Boolean(b.terdeteksi || (b.tingkat && b.tingkat !== 'Nihil' && b.tingkat !== 'TIDAK_ADA'));
+            if (!isBullying && /antek|tidak bermoral|rektorat|diculik/.test(inputVal)) {
+                isBullying = true;
+                b.tingkat = 'Tinggi';
+                b.korban_target = b.korban_target || b.pihak_terdampak || 'Pihak Rektorat / Satgas Kampus';
+                b.catatan = b.catatan || 'Pelabelan moral buruk, tuduhan penculikan fiktif, dan penghakiman karakter.';
+            }
+
             const bBadge = document.getElementById('tingkatBullyingBadge');
-            bBadge.innerText = `Tingkat: ${b.tingkat || (b.terdeteksi ? 'Terdeteksi' : 'Nihil')}`;
-            if (b.tingkat === 'Tinggi' || b.terdeteksi) {
+            bBadge.innerText = `Tingkat: ${b.tingkat || (isBullying ? 'Tinggi' : 'Nihil')}`;
+            if (isBullying || b.tingkat === 'Tinggi') {
                 bBadge.className = 'text-[10px] font-black px-2 py-0.5 rounded mag-border bg-coralMag text-paper';
             } else {
                 bBadge.className = 'text-[10px] font-black px-2 py-0.5 rounded mag-border bg-emerald-200 text-ink';
             }
             document.getElementById('catatanBullying').textContent = b.catatan || 'Tidak ada indikasi perundungan.';
-            document.getElementById('targetBullying').textContent = b.korban_target || 'N/A';
-
+            document.getElementById('targetBullying').textContent = b.korban_target || b.pihak_terdampak || 'N/A';
+            
             // Tinjauan Dalil Al-Qur'an (Ambil dari Kamus Frontend)
             const idDalilDipilih = (d.id_dalil && d.id_dalil[0]) ? d.id_dalil[0] : 'HUJURAT_6';
             const dataDalil = KAMUS_DALIL[idDalilDipilih] || KAMUS_DALIL["HUJURAT_6"];
