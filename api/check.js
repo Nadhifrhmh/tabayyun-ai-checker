@@ -45,54 +45,47 @@ KEMBALIKAN OUTPUT HANYA DALAM FORMAT JSON VALID BERIKUT (tanpa pembungkus markdo
 }
 `;
 
-    try {
-        // 1. Dapatkan daftar model yang aktif langsung dari akun Google Anda
-        let selectedModel = 'gemini-2.5-flash';
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
+
+    // Percobaan hingga 3 kali jika server Google sedang ramai/antri
+    let lastError = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
         try {
-            const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-            if (listRes.ok) {
-                const listData = await listRes.json();
-                const available = (listData.models || [])
-                    .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
-                    .map(m => m.name.replace('models/', ''));
-                
-                // Cari model flash atau model pertama yang tersedia
-                const found = available.find(m => m.includes('flash')) || available[0];
-                if (found) selectedModel = found;
-            }
-        } catch (e) {
-            // fallback default
-        }
-
-        // 2. Panggil model yang ditemukan
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ role: 'user', parts: [{ text: promptText }] }]
-            })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            return res.status(response.status).json({ 
-                error: data.error?.message || `Error pada model ${selectedModel}` 
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            role: 'user',
+                            parts: [{ text: promptText }]
+                        }
+                    ]
+                })
             });
+
+            const data = await response.json();
+
+            if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                let rawText = data.candidates[0].content.parts[0].text.trim();
+                if (rawText.startsWith('```json')) {
+                    rawText = rawText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+                } else if (rawText.startsWith('```')) {
+                    rawText = rawText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+                }
+
+                const parsed = JSON.parse(rawText);
+                return res.status(200).json(parsed);
+            }
+
+            lastError = data.error?.message || `HTTP ${response.status}`;
+            // Tunggu 1,2 detik sebelum retry
+            await new Promise(r => setTimeout(r, 1200));
+        } catch (e) {
+            lastError = e.message;
+            await new Promise(r => setTimeout(r, 1200));
         }
-
-        let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '{}';
-        if (rawText.startsWith('```json')) {
-            rawText = rawText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-        } else if (rawText.startsWith('```')) {
-            rawText = rawText.replace(/^```\s*/, '').replace(/\s*```$/, '');
-        }
-
-        const parsed = JSON.parse(rawText);
-        return res.status(200).json(parsed);
-
-    } catch (err) {
-        return res.status(500).json({ error: 'Terjadi kesalahan: ' + err.message });
     }
+
+    return res.status(500).json({ error: lastError || 'Server AI sedang sangat sibuk. Coba sesaat lagi.' });
 };
