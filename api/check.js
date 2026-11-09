@@ -24,68 +24,59 @@ module.exports = async (req, res) => {
     }
 
     const promptText = `
-Anda adalah 'Tabayyun AI Checker', asisten cerdas verifikasi informasi dan etika digital mahasiswa berbasis nilai-nilai Islam dan jurnalisme fakta.
-Tugas Anda adalah menelaah teks dari pengguna:
-1. Analisis apakah ada indikasi HOAKS / Disinformasi / Klaim tanpa bukti.
-2. Analisis apakah teks mengandung perundungan siber (cyberbullying), pelecehan verbal, ghibah, atau fitnah.
-3. Berikan tinjauan etika Islam (prinsip Tabayyun QS. Al-Hujurat: 6, menjaga kehormatan sesama QS. Al-Hujurat: 11, serta asas praduga tak bersalah).
-4. Tentukan status akhir: 'BAHAYA_HOAKS_BULLYING' atau 'PERLU_TABAYYUN' atau 'AMAN_FAKTUAL'.
-
-Berikut teks yang harus dianalisis:
+Anda adalah Tabayyun AI Checker untuk mahasiswa (Etika Medsos & Verifikasi Nilai Islam).
+Analisis teks ini secara ringkas, to the point:
 "${text}"
 
-KEMBALIKAN OUTPUT HANYA DALAM FORMAT JSON VALID BERIKUT (tanpa pembungkus markdown apapun):
+Balas HANYA JSON murni format ini:
 {
     "status": "BAHAYA_HOAKS_BULLYING",
-    "judul_status": "Judul status singkat",
-    "deskripsi_status": "Penjelasan singkat mengenai status",
-    "analisis_fakta": "Penjelasan fakta vs klaim palsu/belum terbukti",
-    "analisis_perundungan": "Apakah merendahkan martabat orang lain atau membuka aib",
-    "tinjauan_islam": "Nasihat dan dalil Al-Qur'an/Hadits yang relevan serta anjuran tindakan bagi mahasiswa"
+    "judul_status": "Status Singkat",
+    "deskripsi_status": "Penjelasan 1 kalimat",
+    "analisis_fakta": "Fakta berita atau kebenarannya",
+    "analisis_perundungan": "Apakah ada unsur bullying atau pencemaran nama baik",
+    "tinjauan_islam": "Dalil Al-Qur'an (Tabayyun Al-Hujurat 6/11) dan saran mahasiswa"
 }
 `;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 9000);
 
-    // Percobaan hingga 3 kali jika server Google sedang ramai/antri
-    let lastError = null;
-    for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [
-                        {
-                            role: 'user',
-                            parts: [{ text: promptText }]
-                        }
-                    ]
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-                let rawText = data.candidates[0].content.parts[0].text.trim();
-                if (rawText.startsWith('```json')) {
-                    rawText = rawText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-                } else if (rawText.startsWith('```')) {
-                    rawText = rawText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            signal: controller.signal,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ role: 'user', parts: [{ text: promptText }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    maxOutputTokens: 600
                 }
+            })
+        });
 
-                const parsed = JSON.parse(rawText);
-                return res.status(200).json(parsed);
-            }
+        clearTimeout(timeoutId);
 
-            lastError = data.error?.message || `HTTP ${response.status}`;
-            // Tunggu 1,2 detik sebelum retry
-            await new Promise(r => setTimeout(r, 1200));
-        } catch (e) {
-            lastError = e.message;
-            await new Promise(r => setTimeout(r, 1200));
+        const data = await response.json();
+
+        if (!response.ok) {
+            return res.status(response.status).json({ 
+                error: data.error?.message || `Google API Error (${response.status})` 
+            });
         }
-    }
 
-    return res.status(500).json({ error: lastError || 'Server AI sedang sangat sibuk. Coba sesaat lagi.' });
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+        const parsed = JSON.parse(rawText);
+
+        return res.status(200).json(parsed);
+
+    } catch (err) {
+        if (err.name === 'AbortError') {
+            return res.status(504).json({ error: 'Koneksi ke AI timeout (server Google sibuk). Silakan klik verifikasi lagi.' });
+        }
+        return res.status(500).json({ error: err.message });
+    }
 };
