@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE TABAYYUN OBSERVER — Laboratorium Forensik Etika Medsos & Fiqih Informasi</title>
+    <title>TABAYYUN OBSERVER — Instrumen Uji Validitas Informasi & Verifikasi Narasi Digital</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Fraunces, Plus Jakarta Sans, Amiri -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
@@ -22,7 +22,7 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     </script>
 
-    <!-- html2canvas untuk Ekspor Lembar Forensik Jadi Gambar -->
+    <!-- html2canvas untuk Ekspor Kartu Resmi -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <script>
@@ -60,39 +60,56 @@
         .mag-border-thick { border: 3px solid #111615; }
         .mag-shadow {
             box-shadow: 5px 5px 0px #111615;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
         }
         .mag-shadow:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 7px 7px 0px #111615;
+            transform: translate(-3px, -3px);
+            box-shadow: 8px 8px 0px #111615;
         }
         .mag-shadow-sm { box-shadow: 3px 3px 0px #111615; }
-        .mag-shadow-lg { box-shadow: 8px 8px 0px #111615; }
+        .mag-shadow-lg { box-shadow: 7px 7px 0px #111615; }
         
         .arabic-text {
             font-family: 'Amiri', serif;
             line-height: 2.2;
         }
-        
-        /* Efek Stempel Keras */
+
+        /* Kartu Nama Tim Hover Khusus */
+        .team-card {
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+        }
+        .team-card:hover, .team-card:focus-visible {
+            transform: translate(-4px, -4px);
+            box-shadow: 9px 9px 0px #111615;
+            background-color: #0B4F3F !important;
+            color: #F7F4EB !important;
+        }
+        .team-card:hover .text-muted, .team-card:focus-visible .text-muted {
+            color: #D1FAE5 !important;
+        }
+        .team-card:hover .badge-nim, .team-card:focus-visible .badge-nim {
+            background-color: #F7F4EB !important;
+            color: #111615 !important;
+        }
+
+        /* Stempel Hasil */
         .stamp-box {
             mix-blend-mode: multiply;
             border: 4px double currentColor;
-            transform: rotate(-6deg);
+            transform: rotate(-5deg);
             display: inline-block;
             font-family: 'Fraunces', serif;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            animation: stampSlam 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            letter-spacing: 0.08em;
+            animation: stampSlam 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         @keyframes stampSlam {
-            0% { transform: scale(2.8) rotate(-18deg); opacity: 0; }
-            100% { transform: scale(1) rotate(-6deg); opacity: 0.95; }
+            0% { transform: scale(2.6) rotate(-16deg); opacity: 0; }
+            100% { transform: scale(1) rotate(-5deg); opacity: 0.95; }
         }
 
-        /* Screen Shake saat Stempel Menghantam */
         .screen-shake {
             animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
         }
@@ -103,16 +120,7 @@
             40%, 60% { transform: translate3d(3px, 0, 0); }
         }
 
-        /* Stiker Efek Berayun */
-        .swing-card {
-            transform-origin: top center;
-            transition: transform 0.3s ease;
-        }
-        .swing-card:hover {
-            transform: rotate(2deg) scale(1.02);
-        }
-
-        /* Animasi Kertas Berjalan (Printing Press) */
+        /* Pola Mesin Cetak */
         @keyframes paperRoll {
             0% { background-position: 0 0; }
             100% { background-position: 0 40px; }
@@ -122,11 +130,25 @@
             animation: paperRoll 1s linear infinite;
         }
 
-        /* Penyorot Kalimat Forensik */
-        .hl-fakta { background-color: #D1FAE5; border-bottom: 2px solid #059669; cursor: pointer; padding: 2px 4px; border-radius: 3px; }
-        .hl-manipulasi { background-color: #FFE4E6; border-bottom: 2px solid #E11D48; cursor: pointer; padding: 2px 4px; border-radius: 3px; }
-        .hl-provokatif { background-color: #FEF3C7; border-bottom: 2px solid #D97706; cursor: pointer; padding: 2px 4px; border-radius: 3px; }
-        .hl-netral { background-color: #F3F4F6; border-bottom: 2px solid #6B7280; cursor: pointer; padding: 2px 4px; border-radius: 3px; }
+        /* KARTU RESMI EKSPOR (Fixed Ratio 1080x1350 px) */
+        #kartu-resmi-ekspor {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 1080px;
+            height: 1350px;
+            z-index: -100;
+            pointer-events: none;
+            overflow: hidden;
+            background-color: #F7F4EB;
+            color: #111615;
+            padding: 48px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
 
         @media (prefers-reduced-motion: reduce) {
             .stamp-box, .screen-shake, .press-pattern, .mag-shadow {
@@ -138,25 +160,24 @@
 </head>
 <body class="selection:bg-amber-300 selection:text-ink min-h-screen flex flex-col justify-between">
 
-    <!-- Top Sticky Bar: Navigasi & Live Counter -->
+    <!-- Top Sticky Bar -->
     <nav class="sticky top-0 z-50 bg-[#F7F4EB]/95 backdrop-blur-md border-b-2 border-ink">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[58px] py-2 flex items-center justify-between gap-3">
             <div class="flex items-center gap-2 sm:gap-3">
-                <span class="bg-ink text-paper font-serif font-black px-2.5 py-1 text-sm sm:text-base tracking-wider rounded">TABAYYUN PRESS</span>
+                <span class="bg-ink text-paper font-serif font-black px-3 py-1 text-sm sm:text-base tracking-wider rounded">TABAYYUN PRESS</span>
                 <span class="hidden sm:inline-block text-[11px] font-extrabold uppercase tracking-widest text-emeraldMag border border-emeraldMag px-2.5 py-0.5 rounded-full">
-                    EDISI IPTEK & ISLAM 2026/2027
+                    UNIVERSITAS PAMULANG
                 </span>
             </div>
             
             <div class="flex items-center gap-3 text-xs font-bold">
-                <!-- Counter Hoaks Tertahan Lokal -->
                 <div class="hidden sm:flex items-center gap-1.5 bg-paperDark px-3 py-1 rounded mag-border text-[11px]">
                     <i class="fa-solid fa-shield-halved text-emeraldMag"></i>
                     <span>Hoaks Tertahan:</span>
                     <span id="counterTertahan" class="font-mono font-black text-coralMag text-sm">0</span>
                 </div>
 
-                <a href="#meja-kerja" class="bg-amber-300 hover:bg-amber-400 text-ink px-3 py-1.5 rounded mag-border mag-shadow-sm transition flex items-center gap-1.5">
+                <a href="#meja-kerja" class="bg-amber-300 hover:bg-amber-400 text-ink px-4 py-1.5 rounded mag-border mag-shadow-sm transition flex items-center gap-1.5">
                     <i class="fa-solid fa-pen-nib"></i>
                     <span class="font-bold">Ke Meja Bukti</span>
                 </a>
@@ -164,84 +185,108 @@
         </div>
     </nav>
 
-    <!-- ADEGAN 1: SAMPUL MAJALAH (COVER HEADER) -->
-    <section class="border-b-2 border-ink bg-paper pt-8 pb-10">
+    <!-- HEADER & COVER UTAMA -->
+    <header class="border-b-2 border-ink bg-paper pt-8 pb-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             
             <div class="flex items-center justify-between border-y-2 border-ink py-1.5 text-[11px] uppercase tracking-widest font-extrabold text-ink mb-6">
-                <span>VOL. 09 • NO. 01 • EDISI REVISI FORENSIK</span>
+                <span>VOL. 09 • NO. 01 • EDISI FORENSIK DIGITAL</span>
                 <span class="hidden md:inline">GERAKAN: TABAYYUN DULU, BARU POSTING</span>
-                <span>UNIVERSITAS PAMULANG</span>
+                <span>PROGRAM STUDI TEKNIK INFORMATIKA</span>
             </div>
 
-            <div class="relative inline-block mb-3">
-                <span class="absolute -top-3 -left-4 bg-coralMag text-paper text-[10px] font-black uppercase px-2.5 py-0.5 rounded mag-border -rotate-3 z-10 shadow">
-                    EDISI SPESIAL UTS
-                </span>
-                <h1 class="font-serif font-black text-4xl sm:text-6xl lg:text-7xl uppercase tracking-tight text-ink leading-none">
-                    THE TABAYYUN OBSERVER
-                </h1>
-            </div>
+            <!-- Judul Koran Masthead -->
+            <h1 class="font-serif font-black text-4xl sm:text-6xl lg:text-7xl uppercase tracking-tight text-ink leading-none mb-3">
+                THE TABAYYUN OBSERVER
+            </h1>
             
+            <!-- Tagline Akademik Elegan -->
             <p class="font-serif italic text-base sm:text-xl text-stone-700 max-w-3xl mx-auto mb-8 leading-relaxed">
-                "Bukan sekadar bot tanya-jawab: Kami membedah kalimat per kalimat, mengungkap taktik manipulasi emosional, dan melarang penyebaran sebelum verifikasi 3T selesai."
+                "Instrumen Uji Validitas Informasi & Verifikasi Narasi Digital Berbasis Fiqih Tabayyun"
             </p>
 
-            <!-- 3 Stiker Tim Redaksi yang Berayun Pelan -->
-            <div class="max-w-4xl mx-auto mb-8">
-                <div class="flex items-center justify-center gap-2 mb-3">
-                    <span class="h-0.5 w-8 bg-ink"></span>
-                    <span class="text-xs font-black uppercase tracking-wider text-stone-600">Dewan Peneliti Redaksi (Kelompok 9)</span>
-                    <span class="h-0.5 w-8 bg-ink"></span>
+            <!-- KARTU IDENTITAS TIM REDAKSI (Besar, Gagah & Interaktif) -->
+            <div class="max-w-5xl mx-auto mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-left mb-4">
+                    
+                    <!-- 1. Nadhif Rahman Hakim (Ketua) -->
+                    <div tabindex="0" class="team-card bg-white p-5 rounded-2xl mag-border-thick mag-shadow relative cursor-pointer focus:outline-none">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="badge-nim text-[11px] font-black uppercase tracking-wider bg-coralMag text-paper px-2.5 py-0.5 rounded mag-border">
+                                Ketua Pelaksana
+                            </span>
+                            <span class="w-3 h-3 rounded-full bg-amber-400 border border-ink"></span>
+                        </div>
+                        <h2 class="font-serif font-black text-2xl lg:text-3xl tracking-tight leading-tight">
+                            Nadhif Rahman Hakim
+                        </h2>
+                        <p class="text-xs font-mono font-bold text-muted text-stone-600 mt-2">
+                            NIM: 261011400542
+                        </p>
+                    </div>
+
+                    <!-- 2. Rafi Ahmad -->
+                    <div tabindex="0" class="team-card bg-white p-5 rounded-2xl mag-border-thick mag-shadow relative cursor-pointer focus:outline-none">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="badge-nim text-[11px] font-black uppercase tracking-wider bg-paperDark text-ink px-2.5 py-0.5 rounded mag-border">
+                                Anggota Peneliti
+                            </span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-400 border border-ink"></span>
+                        </div>
+                        <h2 class="font-serif font-black text-2xl lg:text-3xl tracking-tight leading-tight">
+                            Rafi Ahmad
+                        </h2>
+                        <p class="text-xs font-mono font-bold text-muted text-stone-600 mt-2">
+                            NIM: 261011400545
+                        </p>
+                    </div>
+
+                    <!-- 3. Mohammad Rifki -->
+                    <div tabindex="0" class="team-card bg-white p-5 rounded-2xl mag-border-thick mag-shadow relative cursor-pointer focus:outline-none">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="badge-nim text-[11px] font-black uppercase tracking-wider bg-paperDark text-ink px-2.5 py-0.5 rounded mag-border">
+                                Anggota Peneliti
+                            </span>
+                            <span class="w-3 h-3 rounded-full bg-indigo-400 border border-ink"></span>
+                        </div>
+                        <h2 class="font-serif font-black text-2xl lg:text-3xl tracking-tight leading-tight">
+                            Mohammad Rifki
+                        </h2>
+                        <p class="text-xs font-mono font-bold text-muted text-stone-600 mt-2">
+                            NIM: 261011400541
+                        </p>
+                    </div>
+
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="swing-card bg-amber-100 p-4 rounded-xl mag-border mag-shadow-sm text-left rotate-[-1deg]">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="text-[10px] font-black uppercase tracking-wider bg-ink text-paper px-2 py-0.5 rounded">Ketua Pelaksana</span>
-                            <i class="fa-solid fa-thumbtack text-stone-400"></i>
+                <!-- Kartu Dosen Pengampu Lebar Penuh -->
+                <div class="bg-amber-100 p-4 rounded-xl mag-border mag-shadow flex flex-col sm:flex-row items-center justify-between gap-2 text-left">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-ink text-paper flex items-center justify-center text-lg font-bold">
+                            <i class="fa-solid fa-chalkboard-user"></i>
                         </div>
-                        <h2 class="font-serif font-black text-base text-ink">Nadhif Rahman Hakim</h2>
-                        <p class="text-xs font-mono text-stone-700">NIM: 261011400542</p>
-                        <p class="text-[11px] text-stone-500 mt-1 italic">Arsitek Logika & Forensik Digital</p>
-                    </div>
-
-                    <div class="swing-card bg-emerald-100 p-4 rounded-xl mag-border mag-shadow-sm text-left rotate-[1deg]">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="text-[10px] font-black uppercase tracking-wider bg-emeraldMag text-paper px-2 py-0.5 rounded">Peneliti Masalah</span>
-                            <i class="fa-solid fa-thumbtack text-stone-400"></i>
+                        <div>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-stone-600 block">Dosen Pembimbing Akademik</span>
+                            <h3 class="font-serif font-black text-base sm:text-lg text-ink">Endah Mawarny, M.Pd.</h3>
                         </div>
-                        <h2 class="font-serif font-black text-base text-ink">Rafi Ahmad</h2>
-                        <p class="text-xs font-mono text-stone-700">NIM: 261011400545</p>
-                        <p class="text-[11px] text-stone-500 mt-1 italic">Riset Cyberbullying & Fenomena Medsos</p>
                     </div>
-
-                    <div class="swing-card bg-rose-100 p-4 rounded-xl mag-border mag-shadow-sm text-left rotate-[-1deg]">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="text-[10px] font-black uppercase tracking-wider bg-coralMag text-paper px-2 py-0.5 rounded">Perumus Etika</span>
-                            <i class="fa-solid fa-thumbtack text-stone-400"></i>
-                        </div>
-                        <h2 class="font-serif font-black text-base text-ink">Mohammad Rifki</h2>
-                        <p class="text-xs font-mono text-stone-700">NIM: 261011400541</p>
-                        <p class="text-[11px] text-stone-500 mt-1 italic">Tinjauan Dalil & Fiqih Informasi</p>
-                    </div>
-                </div>
-
-                <div class="text-center mt-3 text-xs text-stone-500 font-semibold">
-                    Dosen Pengampu: <strong class="text-ink">Endah Mawarny, M.Pd.</strong> (NIDN: 0424037501)
+                    <span class="text-xs font-mono font-bold text-stone-700 bg-paper px-3 py-1 rounded border border-ink">
+                        NIDN: 0424037501
+                    </span>
                 </div>
             </div>
 
-            <a href="#meja-kerja" class="inline-flex items-center gap-3 bg-ink text-paper hover:bg-stone-800 text-sm sm:text-base font-serif font-black px-6 py-3.5 rounded-xl mag-border mag-shadow-lg transition">
-                <i class="fa-solid fa-newspaper text-amber-300"></i>
-                <span>MASUK RUANG REDAKSI & UJI FAKTA</span>
+            <!-- Tombol Mulai Verifikasi -->
+            <a href="#meja-kerja" class="inline-flex items-center gap-3 bg-ink text-paper hover:bg-stone-800 text-sm sm:text-base font-serif font-black px-8 py-4 rounded-xl mag-border-thick mag-shadow-lg transition">
+                <i class="fa-solid fa-magnifying-glass-chart text-amber-300"></i>
+                <span>MULAI VERIFIKASI NARASI</span>
                 <i class="fa-solid fa-arrow-down"></i>
             </a>
 
         </div>
-    </section>
+    </header>
 
-    <!-- ADEGAN 2: MEJA KERJA INVESTIGASI -->
+    <!-- MEJA KERJA INVESTIGASI -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full flex-grow" id="meja-kerja">
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -255,25 +300,26 @@
 
                     <div class="border-b-2 border-ink pb-3 mb-4 flex items-center justify-between">
                         <div>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-coralMag block">Berkas Perkara Masuk</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-coralMag block">Meja Uji Kasus</span>
                             <h3 class="font-serif font-black text-xl text-ink">Naskah Yang Dicurigai</h3>
                         </div>
                         <span id="charCount" class="text-xs font-mono bg-paperDark px-2 py-0.5 rounded border border-ink">0 / 3000</span>
                     </div>
 
+                    <!-- 3 Stiker Contoh Kasus Cepat -->
                     <div class="mb-3">
                         <span class="text-[11px] font-bold text-stone-500 block mb-1.5">
-                            <i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Uji Cepat Kasus Nyata:
+                            <i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Contoh Kasus untuk Dosen/Penguji:
                         </span>
                         <div class="flex flex-wrap gap-1.5">
-                            <button onclick="muatContoh(1)" class="bg-paper hover:bg-amber-100 text-[11px] font-semibold px-2.5 py-1 rounded border border-ink transition text-left">
-                                🚨 Hoaks Rekaman WA
+                            <button onclick="muatKasus(1)" class="bg-paper hover:bg-amber-100 text-[11px] font-bold px-3 py-1.5 rounded border border-ink transition text-left">
+                                🚨 Hoaks Ijazah Palsu
                             </button>
-                            <button onclick="muatContoh(2)" class="bg-paper hover:bg-rose-100 text-[11px] font-semibold px-2.5 py-1 rounded border border-ink transition text-left">
-                                ⚠️ Dugaan Bullying Asrama
+                            <button onclick="muatKasus(2)" class="bg-paper hover:bg-rose-100 text-[11px] font-bold px-3 py-1.5 rounded border border-ink transition text-left">
+                                ⚠️ Isu Bullying Mahasiswa Telkom
                             </button>
-                            <button onclick="muatContoh(3)" class="bg-paper hover:bg-emerald-100 text-[11px] font-semibold px-2.5 py-1 rounded border border-ink transition text-left">
-                                ✅ Klarifikasi Satgas Kampus
+                            <button onclick="muatKasus(3)" class="bg-paper hover:bg-emerald-100 text-[11px] font-bold px-3 py-1.5 rounded border border-ink transition text-left">
+                                ✅ Klarifikasi Resmi Satgas Kampus
                             </button>
                         </div>
                     </div>
@@ -283,9 +329,10 @@
                         class="w-full p-3.5 bg-paper rounded-xl mag-border text-sm font-sans focus:outline-none focus:ring-2 focus:ring-emeraldMag placeholder:text-stone-400 transition"
                         oninput="updateCharCount()"></textarea>
 
+                    <!-- Lampiran Berkas PDF/TXT -->
                     <div class="mt-4 p-3 bg-amber-50 rounded-xl border-2 border-dashed border-amber-800/40">
                         <label class="block text-xs font-black uppercase text-amber-950 mb-1">
-                            <i class="fa-solid fa-folder-closed text-amber-700 mr-1"></i> Map Berkas (.PDF / .TXT)
+                            <i class="fa-solid fa-folder-closed text-amber-700 mr-1"></i> Lampiran Berkas Bukti (.PDF / .TXT)
                         </label>
                         <input type="file" id="fileInput" accept=".txt,.pdf" 
                             class="text-xs text-stone-600 file:mr-2 file:py-1.5 file:px-3 file:rounded file:mag-border file:text-xs file:font-black file:bg-amber-300 file:text-ink hover:file:bg-amber-400 cursor-pointer w-full">
@@ -295,10 +342,10 @@
                     </div>
 
                     <div class="mt-5 flex gap-2">
-                        <button id="checkBtn" onclick="mulaiBedahForensik()" 
+                        <button id="checkBtn" onclick="mulaiVerifikasi()" 
                             class="flex-1 bg-coralMag hover:bg-rose-700 text-paper py-3.5 px-4 rounded-xl font-serif font-black text-base mag-border mag-shadow active:translate-y-1 transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-stamp"></i>
-                            <span>CETAK FORENSIK SEKARANG</span>
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>VERIFIKASI SEKARANG</span>
                         </button>
                         <button onclick="bersihkanForm()" title="Reset" 
                             class="bg-paper hover:bg-stone-200 text-ink px-4 py-3.5 rounded-xl mag-border mag-shadow transition">
@@ -307,12 +354,13 @@
                     </div>
                 </div>
 
+                <!-- Peringatan Transparansi -->
                 <div class="bg-white p-4 rounded-xl mag-border text-xs leading-relaxed text-stone-600">
                     <div class="font-bold text-ink mb-1 flex items-center gap-1.5">
-                        <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Peringatan Transparansi Algoritma:
+                        <i class="fa-solid fa-scale-balanced text-emeraldMag"></i> Asas Fiqih Tabayyun:
                     </div>
                     <p class="text-[11px]">
-                        Sistem ini mengevaluasi <strong>pola sintaksis bahasa, nada emosional, dan cacat logika klaim</strong>. AI tidak memiliki koneksi mesin pencari real-time. Untuk memastikan kebenaran mutlak, selalu gunakan kartu <em>Cek Silang Manual</em> yang disediakan di hasil analisis.
+                        Hasil evaluasi adalah analisis pola bahasa dan kecocokan fakta publik berbantuan AI. Konfirmasi final terhadap kasus hukum tetap merujuk pada putusan aparat berwenang atau rilis resmi Satgas Kampus.
                     </p>
                 </div>
 
@@ -320,119 +368,136 @@
 
             <div class="lg:col-span-7">
                 
+                <!-- State 0: Kosong -->
                 <div id="stateKosong" class="bg-white p-12 rounded-2xl mag-border-thick mag-shadow text-center min-h-[520px] flex flex-col justify-center items-center">
                     <div class="w-20 h-20 bg-paper rounded-full mag-border flex items-center justify-center text-3xl text-stone-400 mb-4">
-                        <i class="fa-solid fa-scroll"></i>
+                        <i class="fa-solid fa-magnifying-glass"></i>
                     </div>
-                    <h4 class="font-serif font-black text-2xl text-ink mb-2">Meja Redaksi Masih Kosong</h4>
+                    <h4 class="font-serif font-black text-2xl text-ink mb-2">Meja Verifikasi Siap Bekerja</h4>
                     <p class="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">
-                        Pilih salah satu <strong>Contoh Kasus</strong> di sebelah kiri atau tempelkan klaim berita yang Anda ragukan kebenarannya untuk mencetak lembar forensik.
+                        Pilih salah satu <strong>Contoh Kasus</strong> di sebelah kiri atau tempelkan narasi berita yang Anda ragukan untuk memulai verifikasi komprehensif.
                     </p>
                 </div>
 
-                <!-- ADEGAN 3: MESIN CETAK BERGULIR (LOADING) -->
+                <!-- State Loading: Mesin Cetak Berjalan -->
                 <div id="stateLoading" class="hidden bg-white p-10 rounded-2xl mag-border-thick mag-shadow text-center min-h-[520px] flex flex-col justify-center items-center relative overflow-hidden">
                     <div class="w-full h-12 press-pattern border-y-2 border-ink mb-6"></div>
-                    
                     <div class="w-16 h-16 border-4 border-ink border-t-coralMag rounded-full animate-spin mb-4"></div>
-                    
-                    <h4 class="font-serif font-black text-2xl text-ink mb-2">MESIN CETAK REDAKSI BEKERJA</h4>
+                    <h4 class="font-serif font-black text-2xl text-ink mb-2">MENJALANKAN UJI FORENSIK FAKTA</h4>
                     <p id="teksStatusMesin" class="text-sm font-mono text-emeraldMag font-bold bg-paper px-3 py-1 rounded border border-ink">
-                        Membedah kalimat demi kalimat...
+                        Mengurai klaim dan fakta pembanding...
                     </p>
-                    <p class="text-[11px] text-stone-400 mt-3">Mohon tunggu, AI sedang menelaah teks dari cacat logika dan tinjauan adab Islam.</p>
-
+                    <p class="text-[11px] text-stone-400 mt-3">Mengevaluasi bukti, mendeteksi manipulasi emosional, dan menimbang dalil Fiqih Informasi.</p>
                     <div class="w-full h-12 press-pattern border-y-2 border-ink mt-6"></div>
                 </div>
 
-                <!-- ADEGAN 4: LEMBAR KORAN HASIL CETAK -->
+                <!-- State Hasil: Bento Grid Lengkap -->
                 <div id="stateHasil" class="hidden space-y-6">
                     
-                    <div id="lembarForensikArea" class="bg-white p-6 sm:p-8 rounded-2xl mag-border-thick mag-shadow-lg relative">
+                    <div class="bg-white p-6 sm:p-8 rounded-2xl mag-border-thick mag-shadow-lg">
                         
+                        <!-- Header Berkas -->
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b-2 border-ink pb-4 mb-4 gap-2">
                             <div>
-                                <span class="text-[10px] font-black uppercase tracking-widest text-stone-500 block">BERKAS INVESTIGASI RESMI</span>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-stone-500 block">DOKUMEN HASIL UJI TABAYYUN</span>
                                 <span id="nomorPerkara" class="font-mono text-xs font-bold text-stone-700">NO. REG: TBY-2026-0000</span>
                             </div>
                             <div class="text-left sm:text-right text-[11px] font-mono text-stone-500">
                                 <div>TANGGAL UJI: <span id="tanggalUji" class="font-bold text-ink"></span></div>
-                                <div>METODE: SENTENCE-LEVEL LINGUISTIC FORENSICS</div>
+                                <div id="dasarVonisBadge" class="text-emeraldMag font-bold">DASAR: PENGETAHUAN UMUM & PENALARAN LOGIKA</div>
                             </div>
                         </div>
 
+                        <!-- STEMPEL STATUS HASIL MENYENTAK -->
                         <div class="my-4 text-center">
                             <div id="stempelHasil" class="stamp-box px-6 py-2 text-2xl sm:text-3xl text-coralMag">
-                                BAHAYA HOAKS TINGGI
+                                HOAKS
                             </div>
                         </div>
 
+                        <!-- Ringkasan Eksekutif -->
                         <div class="bg-paper p-4 rounded-xl mag-border mb-6">
-                            <span class="text-[10px] font-black uppercase tracking-wider text-emeraldMag block mb-1">Kesimpulan Ringkas Pola Bahasa:</span>
-                            <p id="ringkasanEksekutif" class="text-xs sm:text-sm text-stone-800 leading-relaxed font-serif"></p>
+                            <span class="text-[10px] font-black uppercase tracking-wider text-emeraldMag block mb-1">Kesimpulan Evaluasi Fakta:</span>
+                            <p id="ringkasanHasil" class="text-xs sm:text-sm text-stone-800 leading-relaxed font-serif"></p>
                         </div>
 
+                        <!-- Skor Risiko Disinformasi -->
                         <div class="mb-6 bg-paperDark p-4 rounded-xl mag-border flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div>
                                 <span class="text-[10px] font-black uppercase tracking-widest text-stone-600 block">Indeks Risiko Disinformasi</span>
-                                <h4 class="font-serif font-black text-xl text-ink">Probabilitas Pelanggaran Fakta</h4>
-                                <p class="text-xs text-stone-500">Dihitung dari kepadatan kata sensasional & ketiadaan data pembanding.</p>
+                                <h4 class="font-serif font-black text-xl text-ink">Tingkat Potensi Menyesatkan</h4>
+                                <p class="text-xs text-stone-500">Keyakinan Analisis: <strong id="tingkatKeyakinan" class="text-ink">TINGGI</strong></p>
                             </div>
                             <div class="text-center bg-white px-5 py-3 rounded-xl mag-border shrink-0 min-w-[130px]">
                                 <div id="persenSkor" class="font-serif font-black text-4xl text-coralMag">0%</div>
-                                <span class="text-[10px] font-black text-stone-600 uppercase">Skor Kepalsuan</span>
+                                <span class="text-[10px] font-black text-stone-600 uppercase">Skor Risiko</span>
                             </div>
                         </div>
 
+                        <!-- TABEL PERBANDINGAN KLAIM VS FAKTA ASLI -->
                         <div class="mb-6">
-                            <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-serif font-black text-sm uppercase text-ink flex items-center gap-1.5">
-                                    <i class="fa-solid fa-microscope text-emeraldMag"></i> Anatomi Kalimat Asli:
-                                </h4>
-                                <span class="text-[10px] text-stone-500 italic">Klik pada kalimat untuk melihat alasan redaksi</span>
-                            </div>
-
-                            <div class="flex flex-wrap gap-2 text-[10px] font-bold mb-2">
-                                <span class="hl-fakta">Hijau: Indikasi Fakta</span>
-                                <span class="hl-manipulasi">Merah: Manipulasi / Cacat Logika</span>
-                                <span class="hl-provokatif">Kuning: Provokatif / Sensasional</span>
-                                <span class="hl-netral">Abu: Netral</span>
-                            </div>
-
-                            <div id="kontainerKalimat" class="p-4 bg-paper rounded-xl mag-border text-xs sm:text-sm leading-loose text-stone-800">
-                            </div>
-
-                            <div id="kotakMarginCatatan" class="mt-2 p-3 bg-amber-100 rounded-lg mag-border text-xs text-amber-950 hidden">
-                                <span class="font-black uppercase tracking-wider block text-[10px] text-amber-800">Catatan Redaksi Terhadap Kalimat:</span>
-                                <p id="isiMarginCatatan" class="italic mt-0.5"></p>
+                            <h4 class="font-serif font-black text-sm uppercase text-ink mb-3 flex items-center gap-1.5">
+                                <i class="fa-solid fa-scale-unbalanced-flip text-coralMag"></i> Perbandingan Klaim vs Fakta Pembanding Sebenarnya:
+                            </h4>
+                            <div id="kontainerPerbandinganKlaim" class="space-y-3">
+                                <!-- Diisi dinamis -->
                             </div>
                         </div>
 
+                        <!-- DETAIL INVESTIGASI 3 KOLOM -->
                         <div class="mb-6">
                             <h4 class="font-serif font-black text-sm uppercase text-ink mb-2 flex items-center gap-1.5">
-                                <i class="fa-solid fa-masks-theater text-indigoMag"></i> Taktik Manipulasi Psikologis:
+                                <i class="fa-solid fa-list-check text-emeraldMag"></i> Rincian Investigasi Data:
                             </h4>
-                            <div id="kontainerJurus" class="flex flex-wrap gap-2">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                                <div class="bg-emerald-50 p-3.5 rounded-xl border border-emerald-700/30">
+                                    <span class="font-bold text-emerald-900 block mb-1.5">
+                                        <i class="fa-solid fa-check text-emerald-600 mr-1"></i> Terbukti Terjadi:
+                                    </span>
+                                    <ul id="listBenar" class="list-disc ml-4 space-y-1 text-stone-700 text-[11px]"></ul>
+                                </div>
+                                <div class="bg-rose-50 p-3.5 rounded-xl border border-rose-700/30">
+                                    <span class="font-bold text-rose-900 block mb-1.5">
+                                        <i class="fa-solid fa-xmark text-rose-600 mr-1"></i> Karangan / Distorsi:
+                                    </span>
+                                    <ul id="listKarangan" class="list-disc ml-4 space-y-1 text-stone-700 text-[11px]"></ul>
+                                </div>
+                                <div class="bg-amber-50 p-3.5 rounded-xl border border-amber-700/30">
+                                    <span class="font-bold text-amber-900 block mb-1.5">
+                                        <i class="fa-solid fa-question text-amber-600 mr-1"></i> Belum Terverifikasi:
+                                    </span>
+                                    <ul id="listBelumPasti" class="list-disc ml-4 space-y-1 text-stone-700 text-[11px]"></ul>
+                                </div>
                             </div>
                         </div>
 
+                        <!-- TAKTIK MANIPULASI PSIKOLOGIS -->
+                        <div class="mb-6">
+                            <h4 class="font-serif font-black text-sm uppercase text-ink mb-2 flex items-center gap-1.5">
+                                <i class="fa-solid fa-masks-theater text-indigoMag"></i> Taktik Manipulasi yang Terdeteksi:
+                            </h4>
+                            <div id="kontainerTaktik" class="flex flex-wrap gap-2"></div>
+                        </div>
+
+                        <!-- PERUNDUNGAN & SERANGAN MARTABAT -->
                         <div class="mb-6 p-4 bg-white rounded-xl mag-border">
                             <div class="flex items-center justify-between border-b-2 border-ink pb-2 mb-2">
                                 <span class="text-xs font-black uppercase text-ink flex items-center gap-1.5">
-                                    <i class="fa-solid fa-user-slash text-coralMag"></i> Indikasi Perundungan Siber / Fitnah
+                                    <i class="fa-solid fa-user-shield text-coralMag"></i> Evaluasi Perundungan & Martabat Pribadi
                                 </span>
-                                <span id="tingkatBullyingBadge" class="text-[10px] font-black px-2 py-0.5 rounded mag-border bg-amber-300">
+                                <span id="tingkatBullyingBadge" class="text-[10px] font-black px-2.5 py-0.5 rounded mag-border bg-amber-300">
                                     Tingkat: Rendah
                                 </span>
                             </div>
-                            <p id="catatanBullying" class="text-xs text-stone-700 leading-relaxed mb-1"></p>
-                            <p class="text-[11px] text-stone-500">Target Diserang: <strong id="targetBullying" class="text-ink font-mono">N/A</strong></p>
+                            <p id="catatanBullying" class="text-xs text-stone-700 leading-relaxed mb-1.5"></p>
+                            <p class="text-[11px] text-stone-500">Pihak Terdampak: <strong id="pihakTerdampak" class="text-ink font-mono font-bold">N/A</strong></p>
                         </div>
 
+                        <!-- TINJAUAN DALIL FIQIH INFORMASI -->
                         <div class="mb-6 p-5 bg-emerald-50 rounded-xl mag-border">
                             <div class="flex items-center justify-between border-b-2 border-emeraldMag/40 pb-2 mb-3">
                                 <span class="text-xs font-black uppercase text-emeraldMag tracking-wider">
-                                    <i class="fa-solid fa-book-quran mr-1"></i> Rujukan Dalil Fiqih Informasi
+                                    <i class="fa-solid fa-book-quran mr-1"></i> Landasan Fiqih Tabayyun
                                 </span>
                                 <span id="labelDalil" class="font-serif font-black text-xs text-emeraldMag">QS. Al-Hujurat [49]: 6</span>
                             </div>
@@ -444,77 +509,59 @@
                             <p id="artiDalil" class="font-serif italic text-xs text-stone-700 border-l-2 border-emeraldMag pl-3 mb-3 leading-relaxed"></p>
 
                             <div class="bg-white p-3 rounded-lg border border-emeraldMag/30">
-                                <span class="text-[10px] font-black uppercase text-emeraldMag block mb-0.5">Uraian Etika Adab Mahasiswa:</span>
-                                <p id="uraianEtikaIslam" class="text-xs text-stone-800 leading-relaxed"></p>
+                                <span class="text-[10px] font-black uppercase text-emeraldMag block mb-0.5">Nasihat Adab Mahasiswa:</span>
+                                <p id="nasihatEtika" class="text-xs text-stone-800 leading-relaxed">
+                                    Junjung tinggi asas praduga tak bersalah dan tahan diri dari membagikan informasi sebelum ada kepastian hukum atau rilis resmi.
+                                </p>
                             </div>
                         </div>
 
+                        <!-- CEK SILANG SUMBER RESMI -->
                         <div class="mb-6 p-4 bg-amber-50 rounded-xl mag-border">
-                            <h4 class="font-serif font-black text-xs uppercase text-amber-950 mb-2 flex items-center gap-1.5">
-                                <i class="fa-solid fa-arrow-up-right-from-square text-amber-700"></i> Cek Silang Sumber Resmi (Tabayyun Nyata):
+                            <h4 class="font-serif font-black text-xs uppercase text-amber-950 mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-amber-700"></i> Cek Silang Sumber Independen (Tabayyun Mandiri):
                             </h4>
                             <p class="text-[11px] text-stone-600 mb-2">
-                                Klik salah satu tautan di bawah untuk mencocokkan kata kunci isu ini dengan database fact-check independen:
+                                Uji kata kunci isu ini secara langsung pada basis data cek fakta independen terdaftar Dewan Pers:
                             </p>
-                            <div id="linkCekSilang" class="flex flex-wrap gap-2 text-xs font-bold">
-                            </div>
-                        </div>
-
-                        <div class="p-4 bg-paperDark rounded-xl mag-border">
-                            <h4 class="font-serif font-black text-xs uppercase text-ink mb-2 flex items-center gap-1.5">
-                                <i class="fa-solid fa-feather text-emeraldMag"></i> Solusi Nyata: Tulis Ulang Versi Tenang
-                            </h4>
-                            
-                            <div class="mb-3">
-                                <span class="text-[10px] font-black uppercase text-stone-500 block mb-0.5">Versi Netral (Bebas Provokasi):</span>
-                                <div class="bg-white p-2.5 rounded border border-ink text-xs text-stone-800 font-sans" id="teksTulisUlang"></div>
-                            </div>
-
-                            <div>
-                                <div class="flex items-center justify-between mb-0.5">
-                                    <span class="text-[10px] font-black uppercase text-stone-500">Balasan Sopan Siap Kirim ke Grup WhatsApp:</span>
-                                    <button onclick="salinBalasan()" class="text-[10px] font-bold text-emeraldMag hover:underline">
-                                        <i class="fa-solid fa-copy mr-1"></i>Salin Balasan
-                                    </button>
-                                </div>
-                                <div class="bg-white p-2.5 rounded border border-ink text-xs text-stone-800 font-mono italic" id="teksBalasanSopan"></div>
-                            </div>
+                            <div id="linkCekSilang" class="flex flex-wrap gap-2 text-xs font-bold"></div>
                         </div>
 
                     </div>
 
+                    <!-- GERBANG 3T -->
                     <div class="bg-white p-6 rounded-2xl mag-border-thick mag-shadow">
                         <div class="border-b-2 border-ink pb-2 mb-3">
-                            <span class="text-[10px] font-black uppercase tracking-wider text-coralMag block">Komitmen Moral Digital</span>
+                            <span class="text-[10px] font-black uppercase tracking-wider text-coralMag block">Komitmen Adab Digital</span>
                             <h4 class="font-serif font-black text-base text-ink">Gerbang 3T: Konfirmasi Sebelum Bertindak</h4>
-                            <p class="text-xs text-stone-500">Anda wajib mencentang tiga prinsip adab berikut sebelum berkas ini dapat Anda unduh/bagikan.</p>
+                            <p class="text-xs text-stone-500">Centang tiga prinsip etis ini untuk mengaktifkan tombol unduh dokumen dan bagikan.</p>
                         </div>
 
                         <div class="space-y-2 text-xs font-bold text-stone-800 mb-4">
                             <label class="flex items-center gap-2 cursor-pointer p-2 bg-paper rounded border border-ink/40">
-                                <input type="checkbox" id="checkT1" onchange="evaluasiGerbang3T()" class="w-4 h-4 accent-emeraldMag rounded">
-                                <span>1. TELITI (Tabayyun): Saya telah membaca analisis fakta dan tidak langsung percaya begitu saja.</span>
+                                <input type="checkbox" id="checkT1" onchange="evaluasi3T()" class="w-4 h-4 accent-emeraldMag rounded">
+                                <span>1. TELITI (Tabayyun): Saya telah membaca perbandingan fakta dan tidak terburu-buru menghakimi.</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer p-2 bg-paper rounded border border-ink/40">
-                                <input type="checkbox" id="checkT2" onchange="evaluasiGerbang3T()" class="w-4 h-4 accent-emeraldMag rounded">
-                                <span>2. TIMBANG: Saya menyadari bahaya membagikan rekaman tuduhan yang merendahkan martabat orang.</span>
+                                <input type="checkbox" id="checkT2" onchange="evaluasi3T()" class="w-4 h-4 accent-emeraldMag rounded">
+                                <span>2. TIMBANG: Saya menyadari bahaya membagikan tuduhan yang merusak martabat orang lain.</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer p-2 bg-paper rounded border border-ink/40">
-                                <input type="checkbox" id="checkT3" onchange="evaluasiGerbang3T()" class="w-4 h-4 accent-emeraldMag rounded">
-                                <span>3. TAHAN DIRI: Saya berkomitmen menahan diri untuk tidak membagikan kabar sebelum ada rilis resmi.</span>
+                                <input type="checkbox" id="checkT3" onchange="evaluasi3T()" class="w-4 h-4 accent-emeraldMag rounded">
+                                <span>3. TAHAN DIRI: Saya berkomitmen tidak menyebarkan pesan sebelum ada rilis resmi kredibel.</span>
                             </label>
                         </div>
 
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <button id="btnUnduhGambar" disabled onclick="unduhLembarGambar()" 
+                            <button id="btnUnduhGambar" disabled onclick="eksporKartuResmi()" 
                                 class="flex-1 bg-ink text-paper py-3 px-4 rounded-xl font-serif font-black text-xs sm:text-sm mag-border opacity-50 cursor-not-allowed transition flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-download"></i>
-                                <span>UNDUH LEMBAR FORENSIK (PNG)</span>
+                                <span>UNDUH KARTU HASIL (PNG)</span>
                             </button>
-                            <button id="btnBagikanWA" disabled onclick="bagikanKeWA()" 
+                            <button id="btnBagikanWA" disabled onclick="bagikanKeWhatsApp()" 
                                 class="flex-1 bg-emeraldMag text-paper py-3 px-4 rounded-xl font-serif font-black text-xs sm:text-sm mag-border opacity-50 cursor-not-allowed transition flex items-center justify-center gap-2">
                                 <i class="fa-brands fa-whatsapp"></i>
-                                <span>BAGIKAN CLUE KE WHATSAPP</span>
+                                <span>BAGIKAN KE WHATSAPP</span>
                             </button>
                         </div>
                     </div>
@@ -527,14 +574,85 @@
 
     </main>
 
+    <!-- KARTU RESMI EKSPOR (1080x1350 px) -->
+    <div id="kartu-resmi-ekspor">
+        <div>
+            <div style="border-bottom: 4px solid #111615; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <span style="font-size: 13px; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; color: #0B4F3F; display: block;">
+                        LEMBAR HASIL UJI FORENSIK FAKTA
+                    </span>
+                    <h1 style="font-family: 'Fraunces', serif; font-size: 38px; font-weight: 900; margin: 0; line-height: 1.1; text-transform: uppercase;">
+                        THE TABAYYUN OBSERVER
+                    </h1>
+                    <p style="font-size: 13px; margin: 4px 0 0 0; color: #57534E;">
+                        Instrumen Verifikasi Narasi Digital • Universitas Pamulang
+                    </p>
+                </div>
+                <div style="text-align: right; font-family: 'Space Mono', monospace; font-size: 13px;">
+                    <div id="cardRegNo" style="font-weight: 900;">NO. REG: TBY-2026-0000</div>
+                    <div id="cardDate" style="color: #78716C;">9 November 2026</div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: 3px solid #111615; border-radius: 16px; padding: 24px; margin-bottom: 24px;">
+                <div style="flex: 1;">
+                    <span style="font-size: 12px; font-weight: 900; text-transform: uppercase; color: #78716C; display: block; margin-bottom: 6px;">
+                        Kategori Kesimpulan:
+                    </span>
+                    <div id="cardStamp" style="display: inline-block; border: 4px double #E11D48; color: #E11D48; padding: 8px 18px; font-family: 'Fraunces', serif; font-size: 26px; font-weight: 900; transform: rotate(-3deg); text-transform: uppercase;">
+                        HOAKS
+                    </div>
+                    <p id="cardSummary" style="font-size: 14px; color: #292524; margin: 12px 0 0 0; line-height: 1.5; font-family: 'Fraunces', serif; font-style: italic;">
+                        Ringkasan evaluasi fakta.
+                    </p>
+                </div>
+                <div style="text-align: center; border-left: 2px solid #E5E5E5; padding-left: 32px; min-width: 140px;">
+                    <span style="font-size: 11px; font-weight: 900; text-transform: uppercase; color: #78716C; display: block;">Skor Risiko</span>
+                    <div id="cardScore" style="font-family: 'Fraunces', serif; font-size: 52px; font-weight: 900; color: #E11D48; line-height: 1;">0%</div>
+                    <span style="font-size: 11px; font-weight: 800; color: #57534E;">Disinformasi</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <span style="font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #111615; display: block; margin-bottom: 10px;">
+                    [PERBANDINGAN KLAIM VS FAKTA SEBENARNYA]
+                </span>
+                <div id="cardClaimsBox" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            </div>
+        </div>
+
+        <div>
+            <div style="background: #D1FAE5; border: 2px solid #0B4F3F; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px;">
+                <span style="font-size: 11px; font-weight: 900; text-transform: uppercase; color: #0B4F3F; display: block; margin-bottom: 4px;">
+                    RUJUKAN FIQIH TABAYYUN (QS. AL-HUJURAT: 6)
+                </span>
+                <p id="cardDalilText" style="font-size: 13px; font-style: italic; color: #064E3B; margin: 0; line-height: 1.4;">
+                    "Jika seseorang yang fasik datang kepadamu membawa suatu berita, maka telitilah kebenarannya..."
+                </p>
+            </div>
+
+            <div style="border-top: 3px solid #111615; padding-top: 14px; display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
+                <div>
+                    <span style="font-weight: 900; color: #111615;">TIM PENELITI KELOMPOK 9:</span>
+                    <span style="color: #44403C; margin-left: 6px;">Nadhif Rahman Hakim (Ketua), Rafi Ahmad, Mohammad Rifki</span>
+                </div>
+                <div style="font-family: 'Space Mono', monospace; font-size: 11px; color: #78716C;">
+                    tabayyun-ai-checker.vercel.app
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER SITUS -->
     <footer class="border-t-2 border-ink bg-white py-6 mt-12 text-xs text-stone-600">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
             <div>
                 <p class="font-serif font-black text-ink text-sm">THE TABAYYUN OBSERVER — UNIVERSITAS PAMULANG</p>
-                <p class="text-[11px]">Karya Inovasi Mata Kuliah IPTEK & Islam • Kelompok 9 (Nadhif Rahman Hakim, Rafi Ahmad, Mohammad Rifki)</p>
+                <p class="text-[11px]">Dikembangkan untuk Penguatan Literasi Digital Mahasiswa — Universitas Pamulang</p>
             </div>
             <div class="font-mono text-[11px] text-stone-500">
-                Arsitektur Forensik Groq Engine & Vercel
+                Kelompok 9: Nadhif Rahman Hakim, Rafi Ahmad, Mohammad Rifki • Dosen: Endah Mawarny, M.Pd.
             </div>
         </div>
     </footer>
@@ -554,7 +672,7 @@
             "HUJURAT_12": {
                 ref: "QS. Al-Hujurat [49]: 12",
                 arab: "يٰٓاَيُّهَا الَّذِيْنَ اٰمَنُوا اجْتَنِبُوْا كَثِيْرًا مِّنَ الظَّنِّۖ اِنَّ بَعْضَ الظَّنِّ اِثْمٌ وَّلَا تَجَسَّسُوْا وَلَا يَغْتَبْ بَّعْضُكُمْ بَعْضًا",
-                arti: "Wahai orang-orang yang beriman! Jauhilah banyak dari prasangka, sesungguhnya sebagian prasangka itu dosa, dan janganlah kamu mencari-cari kesalahan orang lain dan janganlah ada di antara kamu yang menggunjing sebagian yang lain..."
+                arti: "Wahai orang-orang yang beriman! Jauhilah banyak dari prasangka, sesungguhnya sebagian prasangka itu dosa, dan janganlah kamu mencari-cari kesalahan orang lain..."
             },
             "ISRA_36": {
                 ref: "QS. Al-Isra [17]: 36",
@@ -564,24 +682,25 @@
             "NUR_15": {
                 ref: "QS. An-Nur [24]: 15",
                 arab: "اِذْ تَلَقَّوْنَهٗ بِاَلْسِنَتِكُمْ وَتَقُوْلُوْنَ بِاَفْوَاهِكُمْ مَّا لَيْسَ لَكُمْ بِهٖ عِلْمٌ وَّتَحْسَبُوْنَهٗ هَيِّنًاۖ وَّهُوَ عِنْدَ اللّٰهِ عَظِيْمٌ",
-                arti: "(Ingatlah) ketika kamu menerima (berita bohong) itu dari lidah ke lidah dan kamu katakan dengan mulutmu apa yang tidak kamu ketahui sedikit pun, dan kamu menganggapnya remeh, padahal dalam pandangan Allah itu perkara besar."
+                arti: "(Ingatlah) ketika kamu menerima (berita bohong) itu dari lidah ke lidah dan kamu katakan dengan mulutmu apa yang tidak kamu ketahui sedikit pun, padahal dalam pandangan Allah itu perkara besar."
             },
             "NUR_19": {
                 ref: "QS. An-Nur [24]: 19",
                 arab: "اِنَّ الَّذِيْنَ يُحِبُّوْنَ اَنْ تَشِيْعَ الْفَاحِشَةُ فِى الَّذِيْنَ اٰمَنُوْا لَهُمْ عَذَابٌ اَلِيْمٌۙ فِى الدُّنْيَا وَالْاٰخِرَةِ",
-                arti: "Sesungguhnya orang-orang yang ingin agar perbuatan yang sangat keji itu tersiar di kalangan orang-orang yang beriman, bagi mereka azab yang sangat pedih di dunia dan di akhirat..."
+                arti: "Sesungguhnya orang-orang yang ingin agar perbuatan yang sangat keji itu tersiar di kalangan orang-orang yang beriman, bagi mereka azab yang sangat pedih di dunia dan akhirat..."
             }
         };
 
-        const LABEL_JURUS = {
-            "TEKANAN_TAKUT": { label: "😱 Tekanan Rasa Takut", desc: "Memicu kepanikan emosional agar segera membagikan info tanpa berpikir." },
-            "DESAKAN_WAKTU": { label: "⏰ Desakan Waktu (FOMO)", desc: "Menyebut 'Sebarkan sebelum dihapus!' untuk mematikan nalar kritis." },
-            "OTORITAS_PALSU": { label: "🎭 Otoritas Palsu", desc: "Mencatut nama dokter/pejabat tanpa rujukan tautan resmi yang valid." },
-            "SERANGAN_PRIBADI": { label: "🎯 Serangan Pribadi (Ad Hominem)", desc: "Menyerang martabat personal atau fisik seseorang bukan membantah argumen." },
-            "DATA_DIPILIH": { label: "🍒 Pemilihan Data Sepihak (Cherry-picking)", desc: "Hanya menyajikan potongan potongan kejadian yang menguntungkan narasi." },
-            "GENERALISASI": { label: "📢 Generalisasi Menyesatkan", desc: "Menyamaratakan kesalahan satu individu ke seluruh institusi/kelompok." },
-            "HILANG_KONTEKS": { label: "🧩 Konteks Dihilangkan", desc: "Menggunakan video/foto lama yang dibubuhi keterangan peristiwa baru." }
+        const LABEL_TAKTIK = {
+            "TEKANAN_TAKUT": "Tekanan Rasa Takut",
+            "DESAKAN_WAKTU": "Desakan Waktu (FOMO)",
+            "OTORITAS_PALSU": "Mengatasnamakan Otoritas Palsu",
+            "SERANGAN_MARTABAT": "Serangan Martabat Pribadi",
+            "DATA_SEPIHAK": "Data Disajikan Sepihak",
+            "GENERALISASI": "Generalisasi Berlebihan"
         };
+
+        let dataGlobal = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             try {
@@ -604,14 +723,14 @@
             document.getElementById('stateHasil').classList.add('hidden');
         }
 
-        function muatContoh(n) {
+        function muatKasus(n) {
             const t = document.getElementById('textInput');
             if (n === 1) {
-                t.value = "SEBARKAN SEBELUM DIHAPUS KOMINFO! Beredar rekaman suara seorang mahasiswa diculik satgas asrama kampus karena membocorkan skandal nilai. Siapa pun yang menolak share pesan ini adalah antek rektorat dan tidak bermoral!";
+                t.value = "Foto Listyo Sigit Prabowo Memakai Baju Tahanan KPK beredar luas di media sosial dengan narasi Kapolri resmi ditangkap malam ini atas kasus gratifikasi.";
             } else if (n === 2) {
-                t.value = "Tangkapan layar obrolan grup WhatsApp memperlihatkan 16 mahasiswa senior mengejek dan merendahkan fisik mahasiswi baru di asrama. Video tersebut sudah viral di TikTok dan netizen mendesak pelaku di DO tanpa sidang kode etik.";
+                t.value = "Beredar video viral dugaan perundungan mahasiswa baru Telkom University di kamar asrama oleh 16 senior. Netizen mendesak seluruh pelaku di DO tanpa proses sidang etik.";
             } else {
-                t.value = "Satuan Tugas Pencegahan dan Penanganan Kekerasan Seksual (Satgas PPKS) Universitas secara resmi menyatakan laporan dugaan perundungan di asrama sedang dalam proses investigasi independen. Seluruh pihak diimbau menghormati asas praduga tak bersalah.";
+                t.value = "Satuan Tugas PPKS Universitas Pamulang secara resmi mengumumkan pembukaan posko aduan dan investigasi independen terkait laporan kekerasan verbal di lingkungan kampus.";
             }
             updateCharCount();
         }
@@ -649,12 +768,10 @@
             }
         });
 
-        let dataForensikGlobal = null;
-
-        async function mulaiBedahForensik() {
+        async function mulaiVerifikasi() {
             const text = document.getElementById('textInput').value.trim();
             if (!text) {
-                alert('Masukkan narasi teks atau lampirkan berkas terlebih dahulu.');
+                alert('Silakan masukkan teks narasi atau lampirkan berkas terlebih dahulu.');
                 return;
             }
 
@@ -665,21 +782,21 @@
             document.getElementById('stateHasil').classList.add('hidden');
             document.getElementById('stateLoading').classList.remove('hidden');
 
-            const pesanStatus = [
-                "Membedah kalimat demi kalimat...",
-                "Mencari jejak manipulasi psikologis & emosi...",
-                "Mengevaluasi indikasi perundungan siber...",
-                "Menimbang adab Fiqih Informasi & Dalil Qur'an...",
-                "Menyusun lembaran forensik redaksi..."
+            const statusMsgs = [
+                "Mengurai klaim dan data pembanding...",
+                "Mencocokkan dengan rilis resmi...",
+                "Mendeteksi serangan martabat & provokasi...",
+                "Menimbang Fiqih Tabayyun & Dalil Al-Qur'an...",
+                "Menyusun laporan verifikasi..."
             ];
-            let step = 0;
-            const statusInterval = setInterval(() => {
-                step = (step + 1) % pesanStatus.length;
-                document.getElementById('teksStatusMesin').innerText = pesanStatus[step];
+            let idx = 0;
+            const timerMsg = setInterval(() => {
+                idx = (idx + 1) % statusMsgs.length;
+                document.getElementById('teksStatusMesin').innerText = statusMsgs[idx];
             }, 1800);
 
             const ctrl = new AbortController();
-            const timer = setTimeout(() => ctrl.abort(), 35000);
+            const timeoutTimer = setTimeout(() => ctrl.abort(), 35000);
 
             try {
                 const response = await fetch('/api/check', {
@@ -695,12 +812,12 @@
                     throw new Error(data.error || `HTTP Status ${response.status}`);
                 }
 
-                clearInterval(statusInterval);
-                dataForensikGlobal = data;
+                clearInterval(timerMsg);
+                dataGlobal = data;
 
-                renderLembarKoran(data);
+                renderHasil(data);
 
-                if (data.skor_hoaks > 40) {
+                if (data.skor_risiko >= 40) {
                     try {
                         let cur = parseInt(localStorage.getItem('tabayyun_hoaks_tertahan') || '0', 10);
                         cur += 1;
@@ -710,115 +827,178 @@
                 }
 
             } catch (err) {
-                clearInterval(statusInterval);
-                const msg = err.name === 'AbortError' ? 'Batas waktu verifikasi habis. Coba ulangi kembali.' : err.message;
-                alert('Gagal memproses forensik:\n' + msg);
+                clearInterval(timerMsg);
+                const msg = err.name === 'AbortError' ? 'Batas waktu pemeriksaan habis. Coba ulangi.' : err.message;
+                alert('Gagal memproses verifikasi:\n' + msg);
                 document.getElementById('stateLoading').classList.add('hidden');
                 document.getElementById('stateKosong').classList.remove('hidden');
             } finally {
-                clearTimeout(timer);
+                clearTimeout(timeoutTimer);
                 btn.disabled = false;
             }
         }
 
-        function renderLembarKoran(d) {
+        function renderHasil(d) {
             const randNo = Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('nomorPerkara').innerText = `NO. REG: TBY-2026-${randNo}`;
+            const regString = `NO. REG: TBY-2026-${randNo}`;
+            document.getElementById('nomorPerkara').innerText = regString;
+            document.getElementById('cardRegNo').innerText = regString;
+
             const now = new Date();
-            document.getElementById('tanggalUji').innerText = now.toLocaleDateString('id-ID', {
+            const dateStr = now.toLocaleDateString('id-ID', {
                 day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
             }) + ' WIB';
+            document.getElementById('tanggalUji').innerText = dateStr;
+            document.getElementById('cardDate').innerText = dateStr;
+
+            const badgeDasar = document.getElementById('dasarVonisBadge');
+            if (d.dasar_vonis === 'PENCARIAN_WEB') {
+                badgeDasar.innerText = 'DASAR: PENCARIAN WEB & SUMBER PUBLIK';
+            } else {
+                badgeDasar.innerText = 'DASAR: PENGETAHUAN UMUM & PENALARAN LOGIKA';
+            }
 
             const stempel = document.getElementById('stempelHasil');
-            const skor = d.skor_hoaks || 0;
+            const cardStamp = document.getElementById('cardStamp');
+            const skor = d.skor_risiko || 0;
             document.getElementById('persenSkor').innerText = `${skor}%`;
+            document.getElementById('cardScore').innerText = `${skor}%`;
 
-            if (skor >= 70) {
-                stempel.innerText = 'TERBUKTI HOAKS / PROVOKASI';
+            if (d.status === 'HOAKS') {
+                stempel.innerText = 'TERBUKTI HOAKS';
                 stempel.className = 'stamp-box px-6 py-2 text-2xl sm:text-3xl text-coralMag border-coralMag';
+                cardStamp.innerText = 'TERBUKTI HOAKS';
+                cardStamp.style.color = '#E11D48';
+                cardStamp.style.borderColor = '#E11D48';
                 document.getElementById('persenSkor').className = 'font-serif font-black text-4xl text-coralMag';
-            } else if (skor >= 40) {
-                stempel.innerText = 'INDIKASI MISINFORMASI & RUMOR';
+                document.getElementById('cardScore').style.color = '#E11D48';
+            } else if (d.status === 'MENYESATKAN') {
+                stempel.innerText = 'NARASI MENYESATKAN';
                 stempel.className = 'stamp-box px-6 py-2 text-2xl sm:text-3xl text-goldMag border-goldMag';
+                cardStamp.innerText = 'MENYESATKAN';
+                cardStamp.style.color = '#D97706';
+                cardStamp.style.borderColor = '#D97706';
                 document.getElementById('persenSkor').className = 'font-serif font-black text-4xl text-goldMag';
-            } else {
-                stempel.innerText = 'POLA BAHASA FAKTUAL & NETRAL';
+                document.getElementById('cardScore').style.color = '#D97706';
+            } else if (d.status === 'SESUAI_FAKTA') {
+                stempel.innerText = 'SESUAI FAKTA RESMI';
                 stempel.className = 'stamp-box px-6 py-2 text-2xl sm:text-3xl text-emeraldMag border-emeraldMag';
+                cardStamp.innerText = 'SESUAI FAKTA';
+                cardStamp.style.color = '#0B4F3F';
+                cardStamp.style.borderColor = '#0B4F3F';
                 document.getElementById('persenSkor').className = 'font-serif font-black text-4xl text-emeraldMag';
+                document.getElementById('cardScore').style.color = '#0B4F3F';
+            } else {
+                stempel.innerText = 'BELUM DAPAT DIPASTIKAN';
+                stempel.className = 'stamp-box px-6 py-2 text-2xl sm:text-3xl text-stone-600 border-stone-600';
+                cardStamp.innerText = 'BELUM DIPASTIKAN';
+                cardStamp.style.color = '#57534E';
+                cardStamp.style.borderColor = '#57534E';
+                document.getElementById('persenSkor').className = 'font-serif font-black text-4xl text-stone-600';
+                document.getElementById('cardScore').style.color = '#57534E';
             }
 
-            document.getElementById('ringkasanEksekutif').textContent = d.ringkasan_eksekutif || 'Evaluasi pola bahasa selesai dilakukan.';
+            document.getElementById('ringkasanHasil').textContent = d.ringkasan || 'Evaluasi klaim selesai dilakukan.';
+            document.getElementById('cardSummary').textContent = `"${d.ringkasan || 'Evaluasi klaim selesai dilakukan.'}"`;
+            document.getElementById('tingkatKeyakinan').textContent = d.tingkat_keyakinan || 'SEDANG';
 
-            const containerK = document.getElementById('kontainerKalimat');
-            containerK.innerHTML = '';
-            const marginCatatan = document.getElementById('kotakMarginCatatan');
-            const isiMargin = document.getElementById('isiMarginCatatan');
-            marginCatatan.classList.add('hidden');
+            const kontainerKlaim = document.getElementById('kontainerPerbandinganKlaim');
+            kontainerKlaim.innerHTML = '';
+            const cardClaimsBox = document.getElementById('cardClaimsBox');
+            cardClaimsBox.innerHTML = '';
 
-            if (d.kalimat && d.kalimat.length > 0) {
-                d.kalimat.forEach((k, idx) => {
+            const listKlaim = Array.isArray(d.perbandingan_klaim) ? d.perbandingan_klaim : [];
+            if (listKlaim.length === 0) {
+                kontainerKlaim.innerHTML = '<p class="text-xs text-stone-500 italic p-3 bg-paper rounded border border-ink">Tidak ada klaim spesifik yang dapat diekstraksi.</p>';
+            } else {
+                listKlaim.forEach((item, i) => {
+                    const card = document.createElement('div');
+                    card.className = 'p-4 rounded-xl mag-border bg-paper text-xs space-y-2';
+
+                    let vonisBadge = '<span class="px-2 py-0.5 rounded font-black text-[10px] bg-stone-200 text-stone-800">TIDAK DAPAT DIVERIFIKASI</span>';
+                    if (item.vonis === 'SALAH') vonisBadge = '<span class="px-2 py-0.5 rounded font-black text-[10px] bg-coralMag text-paper">✖ KLAIM SALAH</span>';
+                    else if (item.vonis === 'BENAR') vonisBadge = '<span class="px-2 py-0.5 rounded font-black text-[10px] bg-emeraldMag text-paper">✔ KLAIM BENAR</span>';
+                    else if (item.vonis === 'SEBAGIAN_BENAR') vonisBadge = '<span class="px-2 py-0.5 rounded font-black text-[10px] bg-amber-300 text-ink">⚠ SEBAGIAN BENAR</span>';
+
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between border-b border-ink/20 pb-1.5">
+                            <span class="font-bold text-stone-500 uppercase text-[10px]">Poin Klaim #${i+1}</span>
+                            ${vonisBadge}
+                        </div>
+                        <div>
+                            <span class="font-bold text-ink block">Klaim Pengguna:</span>
+                            <p class="text-stone-700 italic">"${escapeHtml(item.klaim)}"</p>
+                        </div>
+                        <div class="bg-white p-2.5 rounded border border-ink/20">
+                            <span class="font-bold text-emeraldMag block">Fakta Asli Pembanding:</span>
+                            <p class="text-stone-800 font-semibold mt-0.5">${escapeHtml(item.fakta_pembanding)}</p>
+                            <span class="font-bold text-stone-500 block text-[10px] mt-1.5">Dasar Logika:</span>
+                            <p class="text-stone-600 text-[11px]">${escapeHtml(item.dasar_logika)}</p>
+                        </div>
+                    `;
+                    kontainerKlaim.appendChild(card);
+
+                    if (i < 3) {
+                        const cardItem = document.createElement('div');
+                        cardItem.style.cssText = "background: #FFFFFF; border: 2px solid #111615; border-radius: 8px; padding: 10px 14px; font-size: 13px;";
+                        cardItem.innerHTML = `
+                            <div style="font-weight: 800; color: #111615; margin-bottom: 2px;">
+                                [${item.vonis}] "${escapeHtml(item.klaim.slice(0, 140))}"
+                            </div>
+                            <div style="color: #0B4F3F; font-weight: 700; font-size: 12px;">
+                                ➔ Fakta: ${escapeHtml(item.fakta_pembanding.slice(0, 160))}
+                            </div>
+                        `;
+                        cardClaimsBox.appendChild(cardItem);
+                    }
+                });
+            }
+
+            isiListDetail('listBenar', d.detail_investigasi?.benar_terjadi, 'Tidak ada fakta terkonfirmasi.');
+            isiListDetail('listKarangan', d.detail_investigasi?.karangan_atau_dilebih_lebihkan, 'Tidak ada data karangan eksplisit.');
+            isiListDetail('listBelumPasti', d.detail_investigasi?.belum_dapat_dipastikan, 'Tidak ada poin yang menggantung.');
+
+            const kontainerTaktik = document.getElementById('kontainerTaktik');
+            kontainerTaktik.innerHTML = '';
+            const taktikList = Array.isArray(d.taktik) ? d.taktik : [];
+            if (taktikList.length === 0) {
+                kontainerTaktik.innerHTML = '<span class="text-xs text-stone-500 italic">Tidak terdeteksi taktik manipulasi psikologis.</span>';
+            } else {
+                taktikList.forEach(t => {
+                    const label = LABEL_TAKTIK[t] || t;
                     const span = document.createElement('span');
-                    span.textContent = k.teks + ' ';
-                    
-                    const j = (k.jenis || 'NETRAL').toUpperCase();
-                    if (j === 'FAKTA') span.className = 'hl-fakta';
-                    else if (j === 'MANIPULASI') span.className = 'hl-manipulasi';
-                    else if (j === 'PROVOKATIF') span.className = 'hl-provokatif';
-                    else span.className = 'hl-netral';
-
-                    span.title = 'Klik untuk melihat catatan forensik';
-                    span.onclick = () => {
-                        isiMargin.textContent = `"${k.teks}" ➔ [${j}]: ${k.catatan || 'Tidak ada catatan khusus.'}`;
-                        marginCatatan.classList.remove('hidden');
-                    };
-
-                    containerK.appendChild(span);
-                });
-            } else {
-                containerK.textContent = document.getElementById('textInput').value;
-            }
-
-            const jurusCont = document.getElementById('kontainerJurus');
-            jurusCont.innerHTML = '';
-            const listJurus = d.jurus || [];
-            if (listJurus.length === 0) {
-                jurusCont.innerHTML = '<span class="text-xs text-stone-500 italic">Tidak terdeteksi taktik manipulasi psikologis yang agresif.</span>';
-            } else {
-                listJurus.forEach(jCode => {
-                    const info = LABEL_JURUS[jCode] || { label: `⚠️ ${jCode}`, desc: 'Taktik manipulasi emosional.' };
-                    const div = document.createElement('div');
-                    div.className = 'bg-paperDark px-3 py-1.5 rounded-lg border border-ink text-xs font-bold text-ink';
-                    div.innerHTML = `<span>${info.label}</span> <span class="block text-[10px] font-normal text-stone-600">${info.desc}</span>`;
-                    jurusCont.appendChild(div);
+                    span.className = 'bg-paperDark px-3 py-1 rounded-lg border border-ink text-xs font-bold text-ink';
+                    span.textContent = label;
+                    kontainerTaktik.appendChild(span);
                 });
             }
 
-            const b = d.analisis_perundungan || {};
-            const bBadge = document.getElementById('tingkatBullyingBadge');
-            bBadge.innerText = `Tingkat: ${b.tingkat || (b.terdeteksi ? 'Terdeteksi' : 'Nihil')}`;
-            if (b.tingkat === 'Tinggi' || b.terdeteksi) {
-                bBadge.className = 'text-[10px] font-black px-2 py-0.5 rounded mag-border bg-coralMag text-paper';
+            const p = d.perundungan || {};
+            const pBadge = document.getElementById('tingkatBullyingBadge');
+            pBadge.innerText = `Tingkat: ${p.tingkat || 'TIDAK_ADA'}`;
+            if (p.tingkat === 'TINGGI' || p.terdeteksi) {
+                pBadge.className = 'text-[10px] font-black px-2.5 py-0.5 rounded mag-border bg-coralMag text-paper';
             } else {
-                bBadge.className = 'text-[10px] font-black px-2 py-0.5 rounded mag-border bg-emerald-200 text-ink';
+                pBadge.className = 'text-[10px] font-black px-2.5 py-0.5 rounded mag-border bg-emerald-200 text-ink';
             }
-            document.getElementById('catatanBullying').textContent = b.catatan || 'Tidak ada indikasi perundungan.';
-            document.getElementById('targetBullying').textContent = b.korban_target || 'N/A';
+            document.getElementById('catatanBullying').textContent = p.catatan || 'Tidak terdeteksi serangan kehormatan pribadi.';
+            document.getElementById('pihakTerdampak').textContent = p.pihak_terdampak || 'Tidak ada pihak tertentu';
 
-            const idDalilDipilih = (d.id_dalil && d.id_dalil[0]) ? d.id_dalil[0] : 'HUJURAT_6';
-            const dataDalil = KAMUS_DALIL[idDalilDipilih] || KAMUS_DALIL["HUJURAT_6"];
+            const idDalil = (d.id_dalil && d.id_dalil[0]) ? d.id_dalil[0] : 'HUJURAT_6';
+            const dataDalil = KAMUS_DALIL[idDalil] || KAMUS_DALIL["HUJURAT_6"];
             document.getElementById('labelDalil').textContent = dataDalil.ref;
             document.getElementById('teksArabDalil').textContent = dataDalil.arab;
             document.getElementById('artiDalil').textContent = `"${dataDalil.arti}"`;
-            document.getElementById('uraianEtikaIslam').textContent = d.tinjauan_etika_islam || 'Junjung tinggi asas praduga tak bersalah dan tahan diri dari membagikan berita yang belum pasti.';
+            document.getElementById('cardDalilText').textContent = `"${dataDalil.arti}"`;
 
             const boxLink = document.getElementById('linkCekSilang');
             boxLink.innerHTML = '';
-            const kataKunci = (d.kata_kunci_cek && d.kata_kunci_cek.length > 0) ? d.kata_kunci_cek.join(' ') : 'isu hoaks viral';
+            const kataKunci = (d.kata_kunci_cek && d.kata_kunci_cek.length > 0) ? d.kata_kunci_cek.join(' ') : 'isu viral';
             
             const sumber = [
                 { nama: "TurnBackHoax (Mafindo)", url: `https://turnbackhoax.id/?s=${encodeURIComponent(kataKunci)}` },
                 { nama: "CekFakta.com", url: `https://cekfakta.com/?s=${encodeURIComponent(kataKunci)}` },
-                { nama: "Google Fact Check", url: `https://toolbox.google.com/factcheck/explorer/search/list:recent;query=${encodeURIComponent(kataKunci)}` }
+                { nama: "Google Fact Check Explorer", url: `https://toolbox.google.com/factcheck/explorer/search/list:recent;query=${encodeURIComponent(kataKunci)}` }
             ];
 
             sumber.forEach(s => {
@@ -831,14 +1011,10 @@
                 boxLink.appendChild(a);
             });
 
-            const vt = d.versi_tabayyun || {};
-            document.getElementById('teksTulisUlang').textContent = vt.tulis_ulang || 'Klaim ini sebaiknya direspons dengan menunggu rilis resmi dari otoritas kampus terkait.';
-            document.getElementById('teksBalasanSopan').textContent = vt.balasan_sopan || 'Izin teman-teman, mari kita tunggu klarifikasi resmi satgas dan tahan diri agar tidak ikut menyebarkan informasi sebelum diverifikasi (QS. Al-Hujurat: 6).';
-
             document.getElementById('checkT1').checked = false;
             document.getElementById('checkT2').checked = false;
             document.getElementById('checkT3').checked = false;
-            evaluasiGerbang3T();
+            evaluasi3T();
 
             document.getElementById('stateLoading').classList.add('hidden');
             document.getElementById('stateHasil').classList.remove('hidden');
@@ -849,7 +1025,23 @@
             document.getElementById('stateHasil').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function evaluasiGerbang3T() {
+        function isiListDetail(id, arr, defaultMsg) {
+            const ul = document.getElementById(id);
+            ul.innerHTML = '';
+            if (Array.isArray(arr) && arr.length > 0) {
+                arr.forEach(it => {
+                    const li = document.createElement('li');
+                    li.textContent = it;
+                    ul.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = defaultMsg;
+                ul.appendChild(li);
+            }
+        }
+
+        function evaluasi3T() {
             const t1 = document.getElementById('checkT1').checked;
             const t2 = document.getElementById('checkT2').checked;
             const t3 = document.getElementById('checkT3').checked;
@@ -873,48 +1065,63 @@
             }
         }
 
-        function salinBalasan() {
-            const txt = document.getElementById('teksBalasanSopan').textContent;
-            navigator.clipboard.writeText(txt).then(() => {
-                alert('Teks balasan sopan berhasil disalin ke clipboard!');
-            });
-        }
+        function bagikanKeWhatsApp() {
+            if (!dataGlobal) return;
+            const skor = dataGlobal.skor_risiko || 0;
+            const label = dataGlobal.label_status || dataGlobal.status;
+            const ringkasan = dataGlobal.ringkasan || '';
 
-        function bagikanKeWA() {
-            if (!dataForensikGlobal) return;
-            const skor = dataForensikGlobal.skor_hoaks || 0;
-            const status = document.getElementById('stempelHasil').innerText;
-            const balasan = document.getElementById('teksBalasanSopan').textContent;
-
-            const pesan = `*HASIL UJI TABAYYUN OBSERVER*\n\nStatus: *${status}* (Indeks Risiko: ${skor}%)\n\nNasihat Tabayyun:\n"${balasan}"\n\n_Diverifikasi oleh Platform Tabayyun Observer (Kelompok 9 IPTEK & Islam)_`;
+            const pesan = `*HASIL UJI TABAYYUN OBSERVER*\n\nStatus: *${label}* (Skor Risiko: ${skor}%)\n\nRingkasan Fakta:\n"${ringkasan}"\n\nMari junjung asas praduga tak bersalah dan tahan diri dari membagikan informasi sebelum terverifikasi.\n_Diverifikasi oleh Platform Tabayyun Observer (Kelompok 9 IPTEK & Islam - UNPAM)_`;
             const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(pesan)}`;
             window.open(url, '_blank');
         }
 
-        async function unduhLembarGambar() {
-            const target = document.getElementById('lembarForensikArea');
+        async function eksporKartuResmi() {
             const btn = document.getElementById('btnUnduhGambar');
-            const oriText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mencetak Dokumen PNG...';
+            const oriHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mencetak Kartu PNG...';
             btn.disabled = true;
 
             try {
-                const canvas = await html2canvas(target, {
+                await document.fonts.ready;
+                const el = document.getElementById('kartu-resmi-ekspor');
+                
+                const canvas = await html2canvas(el, {
                     scale: 2,
+                    width: 1080,
+                    height: 1350,
+                    windowWidth: 1080,
+                    scrollX: 0,
+                    scrollY: 0,
                     backgroundColor: '#F7F4EB',
                     useCORS: true
                 });
 
-                const link = document.createElement('a');
-                link.download = `Lembar-Forensik-Tabayyun-${Date.now()}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+                canvas.toBlob(blob => {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `Kartu-Tabayyun-${Date.now()}.png`;
+                    a.click();
+                    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+                }, 'image/png');
+
             } catch (err) {
-                alert('Gagal mengekspor gambar: ' + err.message);
+                alert('Gagal mengekspor kartu bukti: ' + err.message);
             } finally {
-                btn.innerHTML = oriText;
+                btn.innerHTML = oriHtml;
                 btn.disabled = false;
             }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
         }
     </script>
 </body>
