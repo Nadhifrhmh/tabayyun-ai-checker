@@ -25,40 +25,34 @@ module.exports = async (req, res) => {
 
     const promptText = `
 Anda adalah Tabayyun AI Checker untuk mahasiswa (Etika Medsos & Verifikasi Nilai Islam).
-Analisis teks ini secara ringkas, to the point:
+Analisis teks ini secara singkat dan to the point:
 "${text}"
 
-Balas HANYA JSON murni format ini:
+Balas HANYA JSON murni tanpa format markdown apapun:
 {
     "status": "BAHAYA_HOAKS_BULLYING",
     "judul_status": "Status Singkat",
-    "deskripsi_status": "Penjelasan 1 kalimat",
+    "deskripsi_status": "Penjelasan ringkas status",
     "analisis_fakta": "Fakta berita atau kebenarannya",
-    "analisis_perundungan": "Apakah ada unsur bullying atau pencemaran nama baik",
-    "tinjauan_islam": "Dalil Al-Qur'an (Tabayyun Al-Hujurat 6/11) dan saran mahasiswa"
+    "analisis_perundungan": "Apakah ada unsur cyberbullying atau pencemaran nama baik",
+    "tinjauan_islam": "Prinsip Tabayyun QS. Al-Hujurat 6/11 dan saran mahasiswa"
 }
 `;
 
     try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 9000);
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
         
         const response = await fetch(url, {
             method: 'POST',
-            signal: controller.signal,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ role: 'user', parts: [{ text: promptText }] }],
                 generationConfig: {
-                    responseMimeType: "application/json",
-                    maxOutputTokens: 600
+                    temperature: 0.2,
+                    maxOutputTokens: 500
                 }
             })
         });
-
-        clearTimeout(timeoutId);
 
         const data = await response.json();
 
@@ -68,15 +62,17 @@ Balas HANYA JSON murni format ini:
             });
         }
 
-        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-        const parsed = JSON.parse(rawText);
+        let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '{}';
+        if (rawText.startsWith('```json')) {
+            rawText = rawText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (rawText.startsWith('```')) {
+            rawText = rawText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
 
+        const parsed = JSON.parse(rawText);
         return res.status(200).json(parsed);
 
     } catch (err) {
-        if (err.name === 'AbortError') {
-            return res.status(504).json({ error: 'Koneksi ke AI timeout (server Google sibuk). Silakan klik verifikasi lagi.' });
-        }
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: 'Terjadi kendala: ' + err.message });
     }
 };
