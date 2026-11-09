@@ -1,5 +1,4 @@
 module.exports = async (req, res) => {
-    // Set header CORS agar bisa diakses lancar
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -43,40 +42,42 @@ module.exports = async (req, res) => {
     }
     `;
 
-    try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
-        
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [
-                    {
-                        role: 'user',
-                        parts: [
-                            { text: systemInstruction + "\n\nBerikut teks yang harus dianalisis:\n" + text }
-                        ]
+    // Coba model stabil gemini-1.5-flash
+    const candidateModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash'];
+    let lastError = null;
+
+    for (const model of candidateModels) {
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            role: 'user',
+                            parts: [
+                                { text: systemInstruction + "\n\nBerikut teks yang harus dianalisis:\n" + text }
+                            ]
+                        }
+                    ],
+                    generationConfig: {
+                        responseMimeType: "application/json"
                     }
-                ],
-                generationConfig: {
-                    responseMimeType: "application/json"
-                }
-            })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            return res.status(response.status).json({ 
-                error: data.error?.message || `Gemini API Error (HTTP ${response.status})` 
+                })
             });
+
+            const data = await response.json();
+            if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                const rawJson = data.candidates[0].content.parts[0].text;
+                return res.status(200).json(JSON.parse(rawJson));
+            } else {
+                lastError = data.error?.message || `Gagal pada model ${model}`;
+            }
+        } catch (e) {
+            lastError = e.message;
         }
-
-        const rawJson = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        const parsed = JSON.parse(rawJson);
-
-        return res.status(200).json(parsed);
-    } catch (err) {
-        return res.status(500).json({ error: 'Terjadi kesalahan server: ' + err.message });
     }
+
+    return res.status(500).json({ error: lastError || 'Server AI sedang sibuk. Silakan coba sebentar lagi.' });
 };
