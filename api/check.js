@@ -1,9 +1,18 @@
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
+    // Set header CORS agar bisa diakses lancar
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { text } = req.body;
+    const { text } = req.body || {};
     if (!text || typeof text !== 'string') {
         return res.status(400).json({ error: 'Teks tidak boleh kosong.' });
     }
@@ -55,12 +64,19 @@ export default async function handler(req, res) {
             })
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
             return res.status(response.status).json({ 
-                error: errData.error?.message || `Gemini API Error (HTTP ${response.status})` 
+                error: data.error?.message || `Gemini API Error (HTTP ${response.status})` 
             });
         }
 
-        const data = await response.json();
-        const rawJson = data.candidates?.[0]?.
+        const rawJson = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const parsed = JSON.parse(rawJson);
+
+        return res.status(200).json(parsed);
+    } catch (err) {
+        return res.status(500).json({ error: 'Terjadi kesalahan server: ' + err.message });
+    }
+};
