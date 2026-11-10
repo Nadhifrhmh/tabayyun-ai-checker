@@ -950,29 +950,25 @@
                 day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
             }) + ' WIB';
 
-            // Deteksi Sinyal Berita Resmi & Hoaks Nyata
+            // Deteksi Sinyal Berita Resmi, Klaim Sepihak, & Hoaks Nyata
             const inputVal = (document.getElementById('textInput').value || '').toLowerCase();
             const isOfficial = /detiknews|detikcom|sekretariat kabinet|setkab|presiden prabowo|mantan kapolri|hambalang|satgas ppks|humas polri|kemendikbud|telkom university|praduga tak bersalah/.test(inputVal);
             const isAbsoluteHoax = /sebarkan sebelum dihapus|antek rektorat|diculik satgas asrama/.test(inputVal);
+            const isUnverifiedClaim = /mengklaim|klaim|katanya|diduga|disinyalir/.test(inputVal);
 
-            // Dapatkan Nilai Risiko Dasar
-            const rawHoaxRisk = (typeof d.skor_hoaks === 'number' && d.skor_hoaks > 0) ? d.skor_hoaks
-                              : (typeof d.skor_risiko === 'number' && d.skor_risiko > 0) ? d.skor_risiko
-                              : (d.status === 'BAHAYA_HOAKS' || d.status === 'HOAKS') ? 88
-                              : (d.status === 'DUGAAN_MISINFORMASI' || d.status === 'MENYESATKAN') ? 50
-                              : 2;
+            // Tentukan status dan validitas
+            let validitas = (typeof d.validitas === 'number') ? d.validitas : 50;
 
-            // Gunakan nilai validitas dari respons atau hitung
-            let validitas = (typeof d.validitas === 'number') ? d.validitas : (100 - rawHoaxRisk);
-
-            if (isOfficial && !isAbsoluteHoax) {
-                validitas = Math.max(validitas, 98); // Berita Resmi Terverifikasi (100% Hijau)
-            } else if (isAbsoluteHoax) {
-                validitas = Math.min(validitas, 12); // Hoaks Total Rantai Pesan (12% Merah)
+            if (isAbsoluteHoax || d.status === 'BAHAYA_HOAKS' || d.status === 'HOAKS') {
+                validitas = 12; // Hoaks Total (Merah 12%)
+            } else if (isOfficial && !isAbsoluteHoax) {
+                validitas = 100; // Berita Resmi Terverifikasi (Hijau 100%)
+            } else if (d.status === 'PERLU_TABAYYUN' || d.status === 'DUGAAN_MISINFORMASI' || isUnverifiedClaim) {
+                // Klaim sepihak / kutipan belum terverifikasi (ZONA KUNING TABAYYUN: 55%)
+                validitas = 55;
             } else if (d.status === 'NETRAL_FAKTUAL' || d.status === 'SESUAI_FAKTA') {
-                validitas = Math.max(validitas, 95);
-            } else if (d.status === 'BAHAYA_HOAKS' || d.status === 'HOAKS') {
-                validitas = Math.min(validitas, 15);
+                // Jika teks murni netral tanpa sumber resmi, beri nilai wajar 60-80% bukan dipaksa 100%
+                validitas = isOfficial ? 100 : 70;
             }
 
             const persenEl = document.getElementById('persenSkor');
@@ -995,7 +991,7 @@
                 }
             } else if (validitas >= 40) {
                 // MISINFORMASI / RUMOR (KUNING EMAS)
-                stempel.innerText = 'INDIKASI MISINFORMASI & RUMOR';
+                stempel.innerText = 'PERLU TABAYYUN & KONFIRMASI DATA';
                 stempel.className = 'stamp-box px-6 py-2 text-2xl sm:text-3xl text-goldMag border-goldMag';
                 persenEl.className = 'font-serif font-black text-4xl sm:text-5xl text-goldMag leading-none';
                 if (barEl) barEl.className = 'h-full rounded-full transition-all duration-700 ease-out bg-amber-500';
@@ -1065,7 +1061,15 @@
                 const span = document.createElement('span');
                 span.textContent = k.teks + ' ';
                 
-                const j = (k.jenis || 'NETRAL').toUpperCase();
+                let j = (k.jenis || 'NETRAL').toUpperCase();
+
+                // Sinkronisasi Logika: Jangan beri sorotan Merah (Manipulasi) jika teks berstatus Faktual atau Perlu Tabayyun!
+                if (validitas >= 75) {
+                    if (j === 'MANIPULASI') j = 'FAKTA';
+                } else if (validitas >= 40) {
+                    if (j === 'MANIPULASI') j = 'NETRAL';
+                }
+
                 if (j === 'FAKTA') span.className = 'hl-fakta';
                 else if (j === 'MANIPULASI') span.className = 'hl-manipulasi';
                 else if (j === 'PROVOKATIF') span.className = 'hl-provokatif';
