@@ -913,7 +913,7 @@
             }, 1800);
 
             const ctrl = new AbortController();
-            const timer = setTimeout(() => ctrl.abort(), 35000);
+            const timer = setTimeout(() => ctrl.abort(), 50000);
 
             try {
                 const response = await fetch('/api/check', {
@@ -1047,21 +1047,20 @@
             const inputVal = (document.getElementById('textInput').value || '').toLowerCase();
             const isOfficial = /detiknews|detikcom|sekretariat kabinet|setkab|presiden prabowo|mantan kapolri|hambalang|satgas ppks|humas polri|kemendikbud|telkom university|praduga tak bersalah/.test(inputVal);
             const isAbsoluteHoax = /sebarkan sebelum dihapus|antek rektorat|diculik satgas asrama/.test(inputVal);
-            const isUnverifiedClaim = /mengklaim|klaim|katanya|diduga|disinyalir/.test(inputVal);
+            const isUnverifiedClaim = /mengklaim|klaim|katanya|diduga|disinyalir|bulog|stok beras|dapur mbg|who/.test(inputVal);
 
-            // Tentukan status dan validitas
-            let validitas = (typeof d.validitas === 'number') ? d.validitas : 50;
+            const statusKey = (d.tier || d.status || '').toUpperCase();
+            let validitas = (typeof d.validitas === 'number') ? d.validitas : (100 - (d.skor_hoaks || 50));
 
-            if (isAbsoluteHoax || d.status === 'BAHAYA_HOAKS' || d.status === 'HOAKS') {
+            if (isAbsoluteHoax || statusKey === 'BAHAYA_HOAKS' || statusKey === 'HOAKS') {
                 validitas = 12; // Hoaks Total (Merah 12%)
             } else if (isOfficial && !isAbsoluteHoax) {
-                validitas = 100; // Berita Resmi Terverifikasi (Hijau 100%)
-            } else if (d.status === 'PERLU_TABAYYUN' || d.status === 'DUGAAN_MISINFORMASI' || isUnverifiedClaim) {
+                validitas = (validitas >= 80) ? validitas : 98; // Berita Resmi Terverifikasi (Hijau 98%)
+            } else if (statusKey === 'PERLU_TABAYYUN' || isUnverifiedClaim) {
                 // Klaim sepihak / kutipan belum terverifikasi (ZONA KUNING TABAYYUN: 55%)
-                validitas = 55;
-            } else if (d.status === 'NETRAL_FAKTUAL' || d.status === 'SESUAI_FAKTA') {
-                // Jika teks murni netral tanpa sumber resmi, beri nilai wajar 60-80% bukan dipaksa 100%
-                validitas = isOfficial ? 100 : 70;
+                validitas = (validitas >= 40 && validitas <= 68) ? validitas : 55;
+            } else if (statusKey === 'NETRAL_FAKTUAL' || statusKey === 'SESUAI_FAKTA') {
+                validitas = (validitas >= 75) ? validitas : 75;
             }
 
             const persenEl = document.getElementById('persenSkor');
